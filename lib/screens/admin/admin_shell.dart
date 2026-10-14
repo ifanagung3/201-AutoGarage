@@ -31,48 +31,56 @@ class AdminShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentIndex = _currentIndex(context);
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 12)],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_navItems.length, (i) {
-                final item = _navItems[i];
-                final isSelected = i == currentIndex;
-                return GestureDetector(
-                  onTap: () => context.go(item.path),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? primaryColor.withValues(alpha: 0.15) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(item.icon, color: isSelected ? primaryColor : Colors.grey, size: 24),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.label,
-                          style: GoogleFonts.poppins(
-                            fontSize: 11,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                            color: isSelected ? primaryColor : Colors.grey,
+    return PopScope(
+      canPop: currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && currentIndex != 0) {
+          context.go('/admin');
+        }
+      },
+      child: Scaffold(
+        body: child,
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: surfaceColor,
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 12)],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(_navItems.length, (i) {
+                  final item = _navItems[i];
+                  final isSelected = i == currentIndex;
+                  return GestureDetector(
+                    onTap: () => context.go(item.path),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? primaryColor.withValues(alpha: 0.15) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(item.icon, color: isSelected ? primaryColor : Colors.grey, size: 24),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.label,
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              color: isSelected ? primaryColor : Colors.grey,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             ),
           ),
         ),

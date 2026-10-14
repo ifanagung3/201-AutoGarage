@@ -62,69 +62,77 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: child,
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: surfaceColor,
-          border: Border(
-            top: BorderSide(
-              color: cardBorderColor,
-              width: 1.0,
+    return PopScope(
+      canPop: selectedIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && selectedIndex != 0) {
+          context.go('/home');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        body: child,
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            color: surfaceColor,
+            border: Border(
+              top: BorderSide(
+                color: cardBorderColor,
+                width: 1.0,
+              ),
             ),
           ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-            ),
-            child: BottomNavigationBar(
-              currentIndex: selectedIndex,
-              onTap: (index) => _onItemTapped(index, context),
-              backgroundColor: surfaceColor,
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: primaryColor,
-              unselectedItemColor: textSecondary,
-              selectedLabelStyle: GoogleFonts.poppins(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+          child: SafeArea(
+            top: false,
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
               ),
-              unselectedLabelStyle: GoogleFonts.poppins(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
+              child: BottomNavigationBar(
+                currentIndex: selectedIndex,
+                onTap: (index) => _onItemTapped(index, context),
+                backgroundColor: surfaceColor,
+                type: BottomNavigationBarType.fixed,
+                selectedItemColor: primaryColor,
+                unselectedItemColor: textSecondary,
+                selectedLabelStyle: GoogleFonts.poppins(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+                unselectedLabelStyle: GoogleFonts.poppins(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+                elevation: 0,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_outlined),
+                    activeIcon: Icon(Icons.home),
+                    label: 'Beranda',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.calendar_today_outlined),
+                    activeIcon: Icon(Icons.calendar_today),
+                    label: 'Booking',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.assignment_outlined),
+                    activeIcon: Icon(Icons.assignment),
+                    label: 'Status',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.history_outlined),
+                    activeIcon: Icon(Icons.history),
+                    label: 'Riwayat',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person_outline),
+                    activeIcon: Icon(Icons.person),
+                    label: 'Akun',
+                  ),
+                ],
               ),
-              elevation: 0,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home),
-                  label: 'Beranda',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_today_outlined),
-                  activeIcon: Icon(Icons.calendar_today),
-                  label: 'Booking',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.assignment_outlined),
-                  activeIcon: Icon(Icons.assignment),
-                  label: 'Status',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.history_outlined),
-                  activeIcon: Icon(Icons.history),
-                  label: 'Riwayat',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline),
-                  activeIcon: Icon(Icons.person),
-                  label: 'Akun',
-                ),
-              ],
             ),
           ),
         ),
