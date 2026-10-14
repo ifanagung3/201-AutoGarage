@@ -13,29 +13,16 @@ class MainShell extends StatelessWidget {
 
   static const Color backgroundColor = Color(0xFFF8FAFC);
   static const Color surfaceColor = Colors.white;
-  static const Color cardColor = Colors.white;
   static const Color cardBorderColor = Color(0xFFE2E8F0);
   static const Color primaryColor = Color(0xFF3B82F6);
-  static const Color textPrimary = Color(0xFF1E293B);
   static const Color textSecondary = Color(0xFF94A3B8);
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    if (location.startsWith('/home') || location == '/') {
-      return 0;
-    }
-    if (location.startsWith('/booking')) {
-      return 1;
-    }
-    if (location.startsWith('/status')) {
-      return 2;
-    }
-    if (location.startsWith('/riwayat')) {
-      return 3;
-    }
-    if (location.startsWith('/akun')) {
-      return 4;
-    }
+    if (location.startsWith('/booking')) return 1;
+    if (location.startsWith('/status')) return 2;
+    if (location.startsWith('/riwayat')) return 3;
+    if (location.startsWith('/akun')) return 4;
     return 0;
   }
 
@@ -65,20 +52,17 @@ class MainShell extends StatelessWidget {
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
+      onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) return;
-
         if (context.canPop()) {
           context.pop();
           return;
         }
-
         if (selectedIndex != 0) {
           context.go('/home');
           return;
         }
-
-        await SystemNavigator.pop();
+        SystemNavigator.pop();
       },
       child: Scaffold(
         backgroundColor: backgroundColor,
