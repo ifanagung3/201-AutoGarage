@@ -1,5 +1,6 @@
 // lib/screens/admin/admin_shell.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -32,11 +33,21 @@ class AdminShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentIndex = _currentIndex(context);
     return PopScope(
-      canPop: currentIndex == 0,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && currentIndex != 0) {
-          context.go('/admin');
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        if (context.canPop()) {
+          context.pop();
+          return;
         }
+
+        if (currentIndex != 0) {
+          context.go('/admin');
+          return;
+        }
+
+        await SystemNavigator.pop();
       },
       child: Scaffold(
         body: child,

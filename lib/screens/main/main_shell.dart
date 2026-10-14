@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -63,11 +64,21 @@ class MainShell extends StatelessWidget {
     final selectedIndex = _calculateSelectedIndex(context);
 
     return PopScope(
-      canPop: selectedIndex == 0,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && selectedIndex != 0) {
-          context.go('/home');
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        if (context.canPop()) {
+          context.pop();
+          return;
         }
+
+        if (selectedIndex != 0) {
+          context.go('/home');
+          return;
+        }
+
+        await SystemNavigator.pop();
       },
       child: Scaffold(
         backgroundColor: backgroundColor,
