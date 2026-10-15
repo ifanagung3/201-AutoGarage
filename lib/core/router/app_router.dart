@@ -29,7 +29,6 @@ import '../../screens/admin/admin_servis_screen.dart';
 import '../../screens/admin/admin_estimasi_screen.dart';
 import '../../screens/admin/admin_pelanggan_screen.dart';
 import '../../screens/admin/admin_promo_screen.dart';
-import '../widgets/booking_wrapper.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
@@ -116,30 +115,22 @@ final appRouter = GoRouter(
       ],
     ),
 
-    // Booking Routes (wrapped with BookingWrapper)
+    // Booking Routes (dengan PopScope di dalam masing-masing screen)
     GoRoute(
       path: '/booking/layanan',
-      builder: (context, state) => const BookingWrapper(
-        child: BookingLayananScreen(),
-      ),
+      builder: (context, state) => const BookingLayananScreen(),
     ),
     GoRoute(
       path: '/booking/tanggal',
-      builder: (context, state) => const BookingWrapper(
-        child: BookingTanggalScreen(),
-      ),
+      builder: (context, state) => const BookingTanggalScreen(),
     ),
     GoRoute(
       path: '/booking/waktu',
-      builder: (context, state) => const BookingWrapper(
-        child: BookingWaktuScreen(),
-      ),
+      builder: (context, state) => const BookingWaktuScreen(),
     ),
     GoRoute(
       path: '/booking/konfirmasi',
-      builder: (context, state) => const BookingWrapper(
-        child: BookingKonfirmasiScreen(),
-      ),
+      builder: (context, state) => const BookingKonfirmasiScreen(),
     ),
 
     // Admin Shell Routes
