@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "211363569825",
+    "project_id": "autogarage-d2a68",
+    "storage_bucket": "autogarage-d2a68.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211363569825:android:51a873acb9bceb0d8bd0e0",
+        "android_client_info": {
+          "package_name": "com.autogarage.auto_garage_201"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211363569825-tutp91djjt4hqlj86rnbop37pkdgh8o5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.autogarage.auto_garage_201",
+            "certificate_hash": "424e24c90679a90ab738310180bc6d671f5f7742"
+          }
+        },
+        {
+          "client_id": "211363569825-08kde1isuu76o2gj6ancvllrj4lg9a8c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJoeo9ZSgviUlkEWx-mw3IP6kVU-BEg40"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211363569825-08kde1isuu76o2gj6ancvllrj4lg9a8c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

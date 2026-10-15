@@ -1,19 +1,19 @@
 name: auto_garage_201
-description: "Auto Garage 201 - Car Service Booking App"
+description: "Aplikasi 201 Auto Garage - Pemesanan Servis Kendaraan"
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ^3.5.0
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  firebase_core: ^5.0.0
-  firebase_auth: ^7.0.0
-  cloud_firestore: ^7.0.0
-  google_sign_in: ^7.2.0
+  cupertino_icons: ^1.0.9
+  firebase_core: ^4.15.0
+  firebase_auth: ^6.7.0
+  cloud_firestore: ^6.10.0
+  google_sign_in: ^6.3.0
   go_router: ^14.8.1
   google_fonts: ^6.3.3
   flutter_animate: ^4.5.0
@@ -27,6 +27,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/images/
-    - assets/icons/
