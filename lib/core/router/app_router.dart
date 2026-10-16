@@ -15,6 +15,7 @@ import '../../screens/booking/booking_layanan_screen.dart';
 import '../../screens/booking/booking_tanggal_screen.dart';
 import '../../screens/booking/booking_waktu_screen.dart';
 import '../../screens/booking/booking_konfirmasi_screen.dart';
+import '../../screens/booking/estimasi_biaya_screen.dart';
 import '../../screens/akun/data_diri_screen.dart';
 import '../../screens/akun/kendaraan_saya_screen.dart';
 import '../../screens/akun/alamat_saya_screen.dart';
@@ -51,6 +52,7 @@ final appRouter = GoRouter(
       ],
     ),
     
+    GoRoute(path: '/estimasi', builder: (c, s) => const EstimasiBiayaScreen()),
     GoRoute(path: '/booking/layanan', builder: (c, s) => const BookingLayananScreen()),
     GoRoute(path: '/booking/tanggal', builder: (c, s) => const BookingTanggalScreen()),
     GoRoute(path: '/booking/waktu', builder: (c, s) => const BookingWaktuScreen()),
