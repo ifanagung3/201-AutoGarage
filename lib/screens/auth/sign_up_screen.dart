@@ -71,18 +71,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F5F5),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => context.go('/sign-in'),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -90,134 +90,127 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Text(
                 'Create Account',
                 style: GoogleFonts.poppins(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A1A),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 'Daftar untuk melanjutkan',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: const Color(0xFF9E9E9E),
-                ),
-              ),
-              const SizedBox(height: 36),
-
-              // Name
-              TextField(
-                controller: _nameController,
-                style: GoogleFonts.poppins(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Nama Lengkap',
-                  hintStyle: GoogleFonts.poppins(color: const Color(0xFFBDBDBD), fontSize: 14),
-                  prefixIcon: const Icon(Icons.person_outline, color: Color(0xFFBDBDBD), size: 20),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Email
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: GoogleFonts.poppins(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  hintStyle: GoogleFonts.poppins(color: const Color(0xFFBDBDBD), fontSize: 14),
-                  prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFFBDBDBD), size: 20),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Password
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                style: GoogleFonts.poppins(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  hintStyle: GoogleFonts.poppins(color: const Color(0xFFBDBDBD), fontSize: 14),
-                  prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFBDBDBD), size: 20),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      color: const Color(0xFFBDBDBD),
-                      size: 20,
-                    ),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Confirm Password
-              TextField(
-                controller: _confirmPasswordController,
-                obscureText: _obscureConfirmPassword,
-                style: GoogleFonts.poppins(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Konfirmasi Password',
-                  hintStyle: GoogleFonts.poppins(color: const Color(0xFFBDBDBD), fontSize: 14),
-                  prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFBDBDBD), size: 20),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      color: const Color(0xFFBDBDBD),
-                      size: 20,
-                    ),
-                    onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
+                style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[600]),
               ),
               const SizedBox(height: 32),
+
+              // Name
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _nameController,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Nama Lengkap',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+                    prefixIcon: Icon(Icons.person_outline, color: Colors.grey[400], size: 20),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Email
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+                    prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[400], size: 20),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Password
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Password',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+                    prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[400], size: 20),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        color: Colors.grey[400],
+                        size: 20,
+                      ),
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Confirm Password
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmPassword,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Konfirmasi Password',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+                    prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[400], size: 20),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        color: Colors.grey[400],
+                        size: 20,
+                      ),
+                      onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
 
               // Sign Up Button
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _signUp,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B8DEF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
+                    backgroundColor: const Color(0xFF6B7FED),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                    elevation: 2,
                   ),
                   child: _isLoading
                       ? const SizedBox(
@@ -235,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
 
               // Sign In Link
               Row(
@@ -243,7 +236,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 children: [
                   Text(
                     'Sudah punya akun? ',
-                    style: GoogleFonts.poppins(fontSize: 13, color: const Color(0xFF9E9E9E)),
+                    style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[600]),
                   ),
                   GestureDetector(
                     onTap: () => context.go('/sign-in'),
@@ -252,7 +245,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF5B8DEF),
+                        color: const Color(0xFF6B7FED),
                       ),
                     ),
                   ),

@@ -49,18 +49,18 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F5F5),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -68,78 +68,73 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               Text(
                 'Your Profile',
                 style: GoogleFonts.poppins(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A1A),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 'Lengkapi profil Anda untuk melanjutkan',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: const Color(0xFF9E9E9E),
-                ),
+                style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[600]),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 36),
 
               // Phone Number
-              TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                style: GoogleFonts.poppins(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Nomor Telepon',
-                  hintStyle: GoogleFonts.poppins(color: const Color(0xFFBDBDBD), fontSize: 14),
-                  prefixIcon: const Icon(Icons.phone_outlined, color: Color(0xFFBDBDBD), size: 20),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Nomor Telepon',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+                    prefixIcon: Icon(Icons.phone_outlined, color: Colors.grey[400], size: 20),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               // Address
-              TextField(
-                controller: _addressController,
-                maxLines: 3,
-                style: GoogleFonts.poppins(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Alamat Lengkap',
-                  hintStyle: GoogleFonts.poppins(color: const Color(0xFFBDBDBD), fontSize: 14),
-                  prefixIcon: const Padding(
-                    padding: EdgeInsets.only(bottom: 50),
-                    child: Icon(Icons.location_on_outlined, color: Color(0xFFBDBDBD), size: 20),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _addressController,
+                  maxLines: 3,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Alamat Lengkap',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(bottom: 50),
+                      child: Icon(Icons.location_on_outlined, color: Colors.grey[400], size: 20),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 36),
 
               // Complete Button
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _completeProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B8DEF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
+                    backgroundColor: const Color(0xFF6B7FED),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                    elevation: 2,
                   ),
                   child: _isLoading
                       ? const SizedBox(
@@ -157,7 +152,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               // Skip Button
               Center(
@@ -166,9 +161,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   child: Text(
                     'Lewati',
                     style: GoogleFonts.poppins(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF9E9E9E),
+                      color: Colors.grey[600],
                     ),
                   ),
                 ),

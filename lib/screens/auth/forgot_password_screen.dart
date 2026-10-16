@@ -52,18 +52,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F5F5),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A1A)),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => context.go('/sign-in'),
         ),
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -71,54 +71,53 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               Text(
                 'Forgot Password',
                 style: GoogleFonts.poppins(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A1A),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Text(
                 'Masukkan email Anda untuk menerima\nlink reset password',
                 style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: const Color(0xFF9E9E9E),
+                  fontSize: 13,
+                  color: Colors.grey[600],
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 36),
 
               // Email Input
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: GoogleFonts.poppins(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  hintStyle: GoogleFonts.poppins(color: const Color(0xFFBDBDBD), fontSize: 14),
-                  prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFFBDBDBD), size: 20),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+                    prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[400], size: 20),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
               // Send Button
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _resetPassword,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B8DEF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
+                    backgroundColor: const Color(0xFF6B7FED),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                    elevation: 2,
                   ),
                   child: _isLoading
                       ? const SizedBox(
