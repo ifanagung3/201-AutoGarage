@@ -12,17 +12,31 @@ class BookingTanggalScreen extends StatefulWidget {
 class _BookingTanggalScreenState extends State<BookingTanggalScreen> {
   DateTime? selectedDate;
 
+  void _handleBack() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/booking/layanan');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (!didPop) {
-          context.go('/home');
+          _handleBack();
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Pilih Tanggal'), leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go('/home'))),
+        appBar: AppBar(
+          title: const Text('Pilih Tanggal'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _handleBack,
+          ),
+        ),
         body: Column(
           children: [
             Expanded(

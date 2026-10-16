@@ -5,17 +5,43 @@ import 'package:google_fonts/google_fonts.dart';
 class KendaraanSayaScreen extends StatelessWidget {
   const KendaraanSayaScreen({super.key});
 
+  void _handleBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/akun');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Kendaraan Saya'), leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go('/akun'))),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _VehicleCard(merk: 'Toyota Avanza', plat: 'B 1234 XYZ', tahun: '2020'),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          _handleBack(context);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Kendaraan Saya'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => _handleBack(context),
+          ),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: const [
+            _VehicleCard(merk: 'Toyota Avanza', plat: 'B 1234 XYZ', tahun: '2020'),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: const Color(0xFF3B82F6),
+          child: const Icon(Icons.add),
+        ),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: () {}, child: const Icon(Icons.add), backgroundColor: const Color(0xFF3B82F6)),
     );
   }
 }

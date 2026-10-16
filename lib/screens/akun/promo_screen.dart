@@ -5,17 +5,39 @@ import 'package:google_fonts/google_fonts.dart';
 class PromoScreen extends StatelessWidget {
   const PromoScreen({super.key});
 
+  void _handleBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/akun');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Promo'), leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go('/akun'))),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _PromoCard(title: 'Diskon 20% Servis Rutin', desc: 'Berlaku hingga 31 Oktober 2026', code: 'SERVIS20'),
-          const SizedBox(height: 12),
-          _PromoCard(title: 'Gratis Cuci Mobil', desc: 'Min. transaksi Rp 200.000', code: 'CUCIGRATIS'),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          _handleBack(context);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Promo'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => _handleBack(context),
+          ),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: const [
+            _PromoCard(title: 'Diskon 20% Servis Rutin', desc: 'Berlaku hingga 31 Oktober 2026', code: 'SERVIS20'),
+            SizedBox(height: 12),
+            _PromoCard(title: 'Gratis Cuci Mobil', desc: 'Min. transaksi Rp 200.000', code: 'CUCIGRATIS'),
+          ],
+        ),
       ),
     );
   }

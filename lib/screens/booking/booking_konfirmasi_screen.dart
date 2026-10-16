@@ -5,17 +5,31 @@ import 'package:google_fonts/google_fonts.dart';
 class BookingKonfirmasiScreen extends StatelessWidget {
   const BookingKonfirmasiScreen({super.key});
 
+  void _handleBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/booking/waktu');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (!didPop) {
-          context.go('/home');
+          _handleBack(context);
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Konfirmasi Booking'), leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go('/home'))),
+        appBar: AppBar(
+          title: const Text('Konfirmasi Booking'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => _handleBack(context),
+          ),
+        ),
         body: Column(
           children: [
             Expanded(
@@ -30,13 +44,13 @@ class BookingKonfirmasiScreen extends StatelessWidget {
                         children: [
                           Text('Detail Booking', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600)),
                           const Divider(height: 24),
-                          _DetailRow(label: 'Layanan', value: 'Servis Rutin'),
+                          const _DetailRow(label: 'Layanan', value: 'Servis Rutin'),
                           const SizedBox(height: 12),
-                          _DetailRow(label: 'Tanggal', value: '20 Oktober 2026'),
+                          const _DetailRow(label: 'Tanggal', value: '20 Oktober 2026'),
                           const SizedBox(height: 12),
-                          _DetailRow(label: 'Waktu', value: '09:00 WIB'),
+                          const _DetailRow(label: 'Waktu', value: '09:00 WIB'),
                           const SizedBox(height: 12),
-                          _DetailRow(label: 'Estimasi Biaya', value: 'Rp 150.000'),
+                          const _DetailRow(label: 'Estimasi Biaya', value: 'Rp 150.000'),
                         ],
                       ),
                     ),
@@ -50,7 +64,14 @@ class BookingKonfirmasiScreen extends StatelessWidget {
                         children: [
                           Text('Catatan', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          TextField(maxLines: 3, decoration: InputDecoration(hintText: 'Tambahkan catatan (opsional)', hintStyle: GoogleFonts.poppins(), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)))),
+                          TextField(
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              hintText: 'Tambahkan catatan (opsional)',
+                              hintStyle: GoogleFonts.poppins(),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -65,7 +86,9 @@ class BookingKonfirmasiScreen extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Booking berhasil dikonfirmasi!', style: GoogleFonts.poppins()), backgroundColor: Colors.green));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Booking berhasil dikonfirmasi!', style: GoogleFonts.poppins()), backgroundColor: Colors.green),
+                    );
                     context.go('/home');
                   },
                   child: const Text('Konfirmasi Booking'),
