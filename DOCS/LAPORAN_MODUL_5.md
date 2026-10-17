@@ -9,7 +9,7 @@
 - 🐙 **Repository GitHub:** [https://github.com/ifanagung3/201-AutoGarage](https://github.com/ifanagung3/201-AutoGarage)
 - 🎨 **Design Figma (UI/UX):** [https://www.figma.com/file/201-AutoGarage-UI-Design](https://www.figma.com/file/201-AutoGarage-UI-Design)
 - 📄 **File PDF Laporan:** [LAPORAN_MODUL_5_201_AUTO_GARAGE.pdf](../LAPORAN_MODUL_5_201_AUTO_GARAGE.pdf)
-- 📊 **File Presentation PPTX:** [PRESENTASI_201_AUTO_GARAGE_PREMIUM.pptx](../PRESENTASI_201_AUTO_GARAGE_PREMIUM.pptx)
+- 📊 **File Presentation PPTX:** [PRESENTASI_201_AUTO_GARAGE_APP_DEV.pptx](../PRESENTASI_201_AUTO_GARAGE_APP_DEV.pptx)
 - 🛠️ **Teknologi Utama:** Flutter (Dart), Firebase Authentication, Cloud Firestore (Database Real-time)
 
 ---
@@ -46,7 +46,7 @@ Flutter adalah *software development kit* (SDK) open-source yang dikembangkan ol
 
 ---
 
-# BAB III: PERANCANGAN SISTEM
+# BAB III: PERANCANGAN SISTEM & SKEMA DATABASE
 
 ## 3.1 Arsitektur Sistem
 ```
@@ -54,38 +54,85 @@ Flutter adalah *software development kit* (SDK) open-source yang dikembangkan ol
 ```
 
 ## 3.2 Skema Database Firestore (`bookings` Collection)
-- `id` (String): ID Pemesanan (e.g. `#BK-1001`)
-- `userId` (String): UID Pengguna
-- `userName` (String): Nama Pelanggan
-- `vehicleName` (String): Merk & Tipe Mobil
-- `vehiclePlat` (String): Plat Nomor Kendaraan
-- `serviceName` (String): Jenis Layanan
-- `bookingDate` (Timestamp): Tanggal Servis
-- `bookingTime` (String): Jam Booking
-- `estimatedCost` (double): Estimasi Biaya Servis (Rp)
-- `status` (String): Status (*Menunggu*, *Proses Pengecekan*, *Sedang Dikerjakan*, *Quality Check*, *Selesai*)
-- `currentStep` (int): Progres Pengerjaan (1 - 5)
+```json
+{
+  "id": "#BK-1001",
+  "userId": "usr_99812",
+  "userName": "Ahmad Fauzi",
+  "userPhone": "081234567890",
+  "vehicleName": "Toyota Avanza 1.3 G",
+  "vehiclePlat": "B 1234 AG",
+  "vehicleYear": 2020,
+  "vehicleKm": 35000,
+  "serviceName": "Servis Rutin Berkala",
+  "bookingDate": "2026-10-20T09:00:00Z",
+  "bookingTime": "09:00 WIB",
+  "estimatedCost": 195000,
+  "status": "Sedang Dikerjakan",
+  "currentStep": 3,
+  "totalSteps": 5,
+  "notes": "Ganti oli mesin & cek rem"
+}
+```
 
 ---
 
-# BAB IV: IMPLEMENTASI SISTEM
+# BAB IV: IMPLEMENTASI KODE PROGRAM (*CODE SNIPPETS*) & TAMPILAN APK
 
-## 4.1 Struktur Kode Proyek
+## 4.1 Potongan Kode Program Utama (*Source Code Snippets*)
+
+### 1. **Implementasi Real-time Firestore Stream Booking (`booking_service.dart`):**
+```dart
+class BookingService {
+  static final BookingService instance = BookingService._internal();
+  BookingService._internal();
+
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /// Stream Live Status Servis Aktif dari Cloud Firestore
+  Stream<List<BookingModel>> streamActiveBookings() {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return Stream.value([]);
+
+    return _db
+        .collection('bookings')
+        .where('userId', isEqualTo: uid)
+        .where('status', whereIn: ['Menunggu', 'Proses Pengecekan', 'Sedang Dikerjakan', 'Quality Check'])
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
+            .toList());
+  }
+}
 ```
-lib/
-├── core/
-│   ├── router/app_router.dart          # GoRouter Navigation Mapping
-│   └── theme/app_theme.dart            # Custom App Theme Data
-├── models/
-│   └── booking_model.dart              # Firestore Booking Entity
-├── services/
-│   └── booking_service.dart            # Firestore CRUD & Stream Service
-└── screens/
-    ├── auth/                           # Splash, Onboarding, Login, Signup
-    ├── main/                           # Home, Status Live, Riwayat, Akun
-    ├── booking/                        # Layanan, Tanggal, Waktu, Konfirmasi
-    └── admin/                          # Dashboard Admin & Management
+
+### 2. **Implementasi Penanganan Back Navigation (`PopScope`) pada Screen:**
+```dart
+@override
+Widget build(BuildContext context) {
+  return PopScope(
+    canPop: false,
+    onPopInvokedWithResult: (bool didPop, Object? result) {
+      if (!didPop) {
+        _handleBack(context); // Mencegah app crash & mengarahkan ke route sebelumnya
+      }
+    },
+    child: Scaffold(
+      appBar: AppBar(title: const Text('Pilih Layanan')),
+      body: ListView(...),
+    ),
+  );
+}
 ```
+
+## 4.2 Deskripsi Tampilan Antarmuka Aplikasi (*App Showcase Visuals*)
+- **Splash & Onboarding:** Logo 201 Auto Garage & tombol "Let's Started ➔".
+- **Sign In & Sign Up:** Input filled abu-abu `#F5F5F5` dengan login Google & Facebook.
+- **Home Dashboard:** Header salam, banner diskon 20%, dan grid layanan.
+- **Booking Flow:** Layanan → Tanggal → Jam → Konfirmasi.
+- **Status Servis Live:** Progress bar 5 tahapan pengerjaan real-time.
+- **Admin Panel:** Kelola antrean booking & update status.
 
 ---
 

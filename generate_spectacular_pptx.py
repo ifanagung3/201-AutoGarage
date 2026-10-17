@@ -106,9 +106,9 @@ def create_spectacular_pptx():
                 for b in cdata["items"]:
                     bp = ctf.add_paragraph()
                     bp.text = f"•  {b}"
-                    bp.font.size = Pt(15)
+                    bp.font.size = Pt(14)
                     bp.font.color.rgb = COLOR_TEXT
-                    bp.space_after = Pt(10)
+                    bp.space_after = Pt(8)
 
         elif num_cards == 3:
             width = Inches(3.64)
@@ -131,7 +131,7 @@ def create_spectacular_pptx():
                 for b in cdata["items"]:
                     bp = ctf.add_paragraph()
                     bp.text = f"•  {b}"
-                    bp.font.size = Pt(14)
+                    bp.font.size = Pt(13)
                     bp.font.color.rgb = COLOR_TEXT
                     bp.space_after = Pt(8)
 
@@ -159,67 +159,63 @@ def create_spectacular_pptx():
         ]
     )
 
-    # Slide 3: Solution
+    # Slide 3: Solution & UI Showcase
     add_card_slide(
-        "Solusi Sistem: Aplikasi Mobile 201 Auto Garage",
-        "Transformasi Digital Bengkel",
+        "Solusi & Tampilan Utama Antarmuka App (UI Showcase)",
+        "Fitur & Desain Antarmuka",
         [
             {
-                "header": "📱 Pemesanan Mobile",
-                "items": ["Booking jadwal servis mudah langsung dari smartphone.", "Otentikasi aman via Email, Google & Facebook."]
+                "header": "🎨 Visual Theme & Style",
+                "items": [
+                    "Splash & Onboarding: Branding logo 201 Auto Garage.",
+                    "Auth Screens: Input box filled abu-abu (#F5F5F5) tanpa border.",
+                    "Home Dashboard: Header gradien, salam pelanggan, banner promo & grid 2x2."
+                ]
             },
             {
-                "header": "📊 Real-time Status Tracking",
-                "items": ["Pelacakan progres servis live berbasis Cloud Firestore.", "Bebas error navigasi berkat penanganan PopScope."]
-            },
-            {
-                "header": "🛠️ Dashboard Admin",
-                "items": ["Pengelolaan antrean booking secara terpusat.", "Update status pengerjaan secara real-time."]
+                "header": "📱 Modul Pengguna",
+                "items": [
+                    "Sign In & Sign Up: Login via Email, Google & Facebook.",
+                    "Booking Wizard Flow: Layanan → Tanggal → Jam → Konfirmasi.",
+                    "Status Servis Live: Progress bar 5 tahapan pengerjaan."
+                ]
             }
         ]
     )
 
-    # Slide 4: Architecture
+    # Slide 4: Code Implementation
     add_card_slide(
-        "Arsitektur Sistem & Teknologi Mobile",
-        "Infrastruktur Teknologi",
+        "Implementasi Kode Program Utama (Code Snippets)",
+        "Struktur Kode & Logika Dart",
         [
             {
-                "header": "1. Mobile App (Frontend)",
-                "items": ["Flutter Framework (Dart) - Single Codebase.", "Support Android & iOS responsif.", "GoRouter Navigation & Theme Data."]
+                "header": "🔄 Firestore Live Stream Code",
+                "items": [
+                    "_db.collection('bookings').snapshots()",
+                    "Status Live: Menunggu → Pengecekan → Pengerjaan → Quality Check → Selesai",
+                    "Otomatis update tampilan tanpa reload."
+                ]
             },
             {
-                "header": "2. Backend & Cloud DB",
-                "items": ["Firebase Authentication untuk otentikasi.", "Cloud Firestore NoSQL real-time database.", "Aturan keamanan Firestore Rules disesuaikan."]
+                "header": "🛡️ Navigation Back Guard (PopScope)",
+                "items": [
+                    "PopScope(canPop: false, onPopInvokedWithResult: ...)",
+                    "Mencegah app crash pada gesture back Android.",
+                    "Mengarahkan dengan aman ke route sebelumnya."
+                ]
             },
             {
-                "header": "3. User Experience (UX)",
-                "items": ["17+ Layar antarmuka bersih & konsisten.", "Penanganan PopScope pada semua layar.", "Sistem UI filled box dengan corner radius."]
+                "header": "🔑 Firebase Auth Integration",
+                "items": [
+                    "FirebaseAuth.instance.signInWithEmailAndPassword()",
+                    "Dukungan Login Google Sign-In & Facebook.",
+                    "Manajemen profil pengguna terintegrasi."
+                ]
             }
         ]
     )
 
-    # Slide 5: Booking Flow
-    add_card_slide(
-        "Alur Pemesanan Servis Berantai (Booking Flow)",
-        "Fitur Utama Pemesanan",
-        [
-            {
-                "header": "1. Pilih Layanan",
-                "items": ["Servis Rutin, Tune Up, AC Service, Ganti Ban, Kaki-kaki."]
-            },
-            {
-                "header": "2. Pilih Jadwal & Jam",
-                "items": ["Pilihan tanggal kunjungan & slot jam yang tersedia."]
-            },
-            {
-                "header": "3. Konfirmasi Booking",
-                "items": ["Input detail kendaraan, plat nomor & catatan keluhan."]
-            }
-        ]
-    )
-
-    # Slide 6: Conclusions
+    # Slide 5: Conclusions & Usability
     add_card_slide(
         "Kesimpulan & Hasil Pengujian Sistem",
         "Penutup",
@@ -242,9 +238,9 @@ def create_spectacular_pptx():
         ]
     )
 
-    output_filename = "PRESENTASI_201_AUTO_GARAGE_APP_DEV.pptx"
+    output_filename = "PRESENTASI_201_AUTO_GARAGE_FINAL.pptx"
     prs.save(output_filename)
-    print(f"🎉 File PPTX Premium berhasil diperbarui: {output_filename}")
+    print(f"🎉 File PPTX Final berhasil dibuat: {output_filename}")
 
 if __name__ == '__main__':
     create_spectacular_pptx()

@@ -31,32 +31,22 @@ Oleh karena itu, diperlukan sebuah solusi aplikasi mobile yang mampu menangani p
 2. Menyediakan sistem otentikasi pengguna dengan berbagai pilihan login (Email/Password, Google Sign-In, Facebook).
 3. Menyediakan sistem pelacakan status pengerjaan secara *real-time* berbasis Firebase Firestore serta dashboard pengelolaan untuk admin bengkel.
 
-## 1.4 Manfaat
-- **Bagi Pelanggan:** Kemudahan pemesanan servis dari mana saja, kepastian jadwal pengerjaan, serta kepastian status perbaikan kendaraan secara *real-time*.
-- **Bagi Bengkel 201 Auto Garage:** Otomatisasi pencatatan pemesanan, penjadwalan mekanik yang lebih terstruktur, serta peningkatan efisiensi operasional bengkel.
-
 ---
 
 # BAB II: LANDASAN TEORI
 
 ## 2.1 Flutter Framework
-Flutter adalah *software development kit* (SDK) open-source yang dikembangkan oleh Google untuk membangun aplikasi *cross-platform* (Android, iOS, Web, Desktop) dari satu basis kode (*single codebase*) menggunakan bahasa pemrograman **Dart**. Flutter menggunakan mesin rendering sendiri berbasis Impeller/Skia, sehingga memberikan performa tinggi dan tampilan UI yang konsisten.
+Flutter adalah *software development kit* (SDK) open-source yang dikembangkan oleh Google untuk membangun aplikasi *cross-platform* (Android, iOS, Web, Desktop) dari satu basis kode (*single codebase*) menggunakan bahasa pemrograman **Dart**.
 
 ## 2.2 Firebase Ecosystem
-Firebase merupakan platform Backend-as-a-Service (BaaS) dari Google yang menyediakan berbagai layanan terintegrasi:
-- **Firebase Authentication:** Menyediakan sistem otentikasi pengguna yang aman (Email/Password, Google Sign-In, Facebook Sign-In).
-- **Cloud Firestore:** Database NoSQL berbasis dokumen yang mendukung sinkronisasi data secara *real-time* melalui mekanisme *StreamListener*.
-
-## 2.3 State Management & Routing (GoRouter)
-Aplikasi ini menggunakan paket **GoRouter** untuk manajemen rute dan navigasi berantai. Untuk memastikan kelancaran navigasi tombol *back* pada perangkat mobile, aplikasi memanfaatkan widget **`PopScope`** untuk menangani gestur dan tombol fisik *back* tanpa merusak antrean navigasi (*navigation stack*).
+- **Firebase Authentication:** Otentikasi aman (Email/Password, Google Sign-In, Facebook Sign-In).
+- **Cloud Firestore:** Database NoSQL berbasis dokumen dengan sinkronisasi *real-time*.
 
 ---
 
-# BAB III: PERANCANGAN SISTEM
+# BAB III: PERANCANGAN SISTEM & SKEMA DATABASE
 
 ## 3.1 Arsitektur Sistem
-Sistem dibangun menggunakan arsitektur *Client-Server Cloud Database*:
-
 ```
                   ┌─────────────────────────────────────────┐
                   │ Flutter 201 Auto Garage App (Mobile)   │
@@ -71,40 +61,42 @@ Sistem dibangun menggunakan arsitektur *Client-Server Cloud Database*:
   └───────────────────────────┘                 └───────────────────────────┘
 ```
 
-## 3.2 Alur Pemesanan Servis (*Booking Flow*)
-1. **Pilih Layanan:** Pelanggan memilih jenis servis (Servis Rutin, Tune Up, AC Service, Ganti Ban, Kaki-kaki).
-2. **Pilih Jadwal:** Pelanggan menentukan tanggal dan jam kunjungan servis.
-3. **Konfirmasi Booking:** Pelanggan memasukkan detail kendaraan (merk, model, tahun, kilometer) dan catatan tambahan.
-4. **Simpan Real-time:** Data transaksi langsung tersimpan ke Cloud Firestore dan status pengerjaan masuk ke daftar antrean *Menunggu*.
-
-## 3.3 Skema Database Firestore (`bookings` Collection)
-- `id` (String): ID Pemesanan (e.g. `#BK-1001`)
-- `userId` (String): UID Pengguna
-- `userName` (String): Nama Pelanggan
-- `userPhone` (String): Nomor Telepon
-- `vehicleName` (String): Merk & Tipe Mobil
-- `vehiclePlat` (String): Plat Nomor Kendaraan
-- `serviceName` (String): Jenis Layanan
-- `bookingDate` (Timestamp): Tanggal Servis
-- `bookingTime` (String): Jam Booking
-- `estimatedCost` (double): Estimasi Biaya Servis (Rp)
-- `status` (String): Status (*Menunggu*, *Proses Pengecekan*, *Sedang Dikerjakan*, *Quality Check*, *Selesai*)
-- `currentStep` (int): Progres Pengerjaan (1 - 5)
+## 3.2 Skema Database Firestore (`bookings` Collection)
+```json
+{
+  "id": "#BK-1001",
+  "userId": "usr_99812",
+  "userName": "Ahmad Fauzi",
+  "userPhone": "081234567890",
+  "vehicleName": "Toyota Avanza 1.3 G",
+  "vehiclePlat": "B 1234 AG",
+  "vehicleYear": 2020,
+  "vehicleKm": 35000,
+  "serviceName": "Servis Rutin Berkala",
+  "bookingDate": "2026-10-20T09:00:00Z",
+  "bookingTime": "09:00 WIB",
+  "estimatedCost": 195000,
+  "status": "Sedang Dikerjakan",
+  "currentStep": 3,
+  "totalSteps": 5,
+  "notes": "Ganti oli mesin & cek rem"
+}
+```
 
 ---
 
-# BAB IV: IMPLEMENTASI SISTEM
+# BAB IV: IMPLEMENTASI KODE PROGRAM (*CODE SNIPPETS*) & TAMPILAN APK
 
 ## 4.1 Struktur Kode Proyek Flutter
 ```
 lib/
 ├── core/
-│   ├── router/app_router.dart          # GoRouter Navigation Mapping
+│   ├── router/app_router.dart          # Navigation Mapping & GoRouter
 │   └── theme/app_theme.dart            # Custom App Theme Data
 ├── models/
-│   └── booking_model.dart              # Firestore Booking Entity
+│   └── booking_model.dart              # Firestore Booking Entity Model
 ├── services/
-│   └── booking_service.dart            # Firestore CRUD & Stream Service
+│   └── booking_service.dart            # Firestore Real-time CRUD Service
 └── screens/
     ├── auth/                           # Splash, Onboarding, Sign In, Sign Up, Complete Profile, OTP
     ├── main/                           # Home, Status Live, Riwayat, Akun
@@ -112,13 +104,95 @@ lib/
     └── admin/                          # Dashboard Admin & Booking Management
 ```
 
-## 4.2 Tampilan Antarmuka Utama (17 Screens)
-- **Splash & Onboarding:** Branding minimalis logo 201 Auto Garage & tombol pemicu navigasi.
-- **Auth Screens:** Sign In, Sign Up, Complete Profile, OTP, Forgot Password (berlatar abu-abu `#F5F5F5` dengan input *filled* putih).
-- **Home Dashboard:** Banner promosi, kartu kalkulator servis, dan *grid* pilihan layanan.
-- **Booking Wizard:** Alur pemesanan berantai (Layanan → Tanggal → Waktu → Konfirmasi).
-- **Status Servis Screen:** Indikator *progress bar* 5 langkah terhubung langsung dengan Stream Firestore.
-- **Admin Panel:** Dashboard pengelolaan pemesanan dan pengubahan status pengerjaan oleh admin.
+## 4.2 Potongan Kode Program Utama (*Source Code Snippets*)
+
+### 1. **Implementasi Real-time Firestore Stream Booking (`booking_service.dart`):**
+```dart
+class BookingService {
+  static final BookingService instance = BookingService._internal();
+  BookingService._internal();
+
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /// Stream Live Status Servis Aktif dari Cloud Firestore
+  Stream<List<BookingModel>> streamActiveBookings() {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return Stream.value([]);
+
+    return _db
+        .collection('bookings')
+        .where('userId', isEqualTo: uid)
+        .where('status', whereIn: ['Menunggu', 'Proses Pengecekan', 'Sedang Dikerjakan', 'Quality Check'])
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
+            .toList());
+  }
+}
+```
+
+### 2. **Implementasi Penanganan Back Navigation (`PopScope`) pada Screen:**
+```dart
+@override
+Widget build(BuildContext context) {
+  return PopScope(
+    canPop: false,
+    onPopInvokedWithResult: (bool didPop, Object? result) {
+      if (!didPop) {
+        _handleBack(context); // Mencegah app crash & mengarahkan ke route sebelumnya
+      }
+    },
+    child: Scaffold(
+      appBar: AppBar(title: const Text('Pilih Layanan')),
+      body: ListView(...),
+    ),
+  );
+}
+```
+
+### 3. **Implementasi Otentikasi Firebase Login (`sign_in_screen.dart`):**
+```dart
+Future<void> _signInWithEmail() async {
+  if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) return;
+  setState(() => _isLoading = true);
+  try {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+    if (mounted) context.go('/home');
+  } on FirebaseAuthException catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Login gagal: ${e.message}')),
+    );
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
+  }
+}
+```
+
+---
+
+## 4.3 Deskripsi Tampilan Antarmuka Aplikasi (*App Showcase Visuals*)
+
+1. **Splash & Onboarding Screen:**
+   - Visual: Latar belakang putih bersih dengan logo vektor mobil biru dan teks branding **201 AUTO GARAGE**.
+   - Komponen: Ilustrasi mobil sport hitam di bagian bawah dan tombol pemicu navigasi **"Let's Started ➔"**.
+2. **Sign In & Sign Up Screen:**
+   - Visual: Latar belakang abu-abu muda (`#F5F5F5`) dengan kotak input *filled* putih tanpa border untuk kenyamanan visual.
+   - Komponen: Field Email & Password, link *Forgot Password?*, tombol *Sign In* berbentuk kapsul (`#6B7FED`), dan tombol login berdampingan untuk **Google** & **Facebook**.
+3. **Home Dashboard Screen:**
+   - Visual: Header gradien biru dengan salam *"Halo, Pelanggan! 👋"*, search bar, banner promosi diskon 20%, dan *grid 2x2* pilihan layanan (Servis Rutin, Tune Up, AC Service, Ganti Ban).
+4. **Alur Pemesanan Servis (*Booking Wizard Flow*):**
+   - Step 1: Pilih Layanan dengan harga dan deskripsi pengerjaan.
+   - Step 2: Calendar DatePicker interaktif untuk menentukan tanggal servis.
+   - Step 3: Grid pilihan slot jam kunjungan (08:00 WIB, 09:00 WIB, dst).
+   - Step 4: Konfirmasi Booking dengan detail kendaraan, tanggal, waktu, dan input catatan keluhan.
+5. **Status Servis Real-time Screen:**
+   - Visual: Tampilan *Progress Bar* 5 tahapan (*Menunggu → Pengecekan → Pengerjaan → Quality Check → Selesai*) yang ter-update secara otomatis secara live saat admin merubah status pengerjaan di Firestore.
+6. **Dashboard Management Admin Screen:**
+   - Visual: Panel khusus admin berlatar gelap (*Dark Theme*) dengan tab kategori status booking dan tombol aksi *Terima/Tolak/Update Status*.
 
 ---
 
@@ -186,39 +260,39 @@ Pengujian usability dengan metode **System Usability Scale (SUS)** kepada penggu
 
 ---
 
-### **SLIDE 4: ARSITEKTUR & TEKNOLOGI**
-- **Judul Slide:** Arsitektur & Teknologi Sistem
+### **SLIDE 4: ARSITEKTUR & STRUKTUR KODE**
+- **Judul Slide:** Arsitektur & Implementasi Kode
 - **Poin Presentasi:**
   - **Frontend:** Flutter (Dart) - Single Codebase Cross-Platform.
   - **Backend & Database:** Firebase Auth & Cloud Firestore (Real-Time NoSQL).
-  - **Navigation & Router:** GoRouter + Penanganan `PopScope` Navigasi Back.
+  - **Routing & Back Guard:** GoRouter + Widget `PopScope` untuk navigasi aman.
 
 ---
 
-### **SLIDE 5: SHOWCASE ANTARMUKA APLIKASI (UI)**
+### **SLIDE 5: IMPLEMENTASI KODE UTAMA (DART & FIREBASE)**
+- **Judul Slide:** Implementation Code Snippets
+- **Poin Presentasi:**
+  - **Firestore Live Stream:** `_db.collection('bookings').snapshots().map(...)`
+  - **Firebase Authentication:** `FirebaseAuth.instance.signInWithEmailAndPassword(...)`
+  - **PopScope Navigation:** `PopScope(canPop: false, onPopInvokedWithResult: ...)`
+
+---
+
+### **SLIDE 6: SHOWCASE TAMPILAN APK (UI SHOWCASE)**
 - **Judul Slide:** Tampilan Antarmuka Utama (UI Showcase)
 - **Visual Highlights:**
   - **Splash & Onboarding:** Branding profesional dengan vektor mobil sport.
-  - **Auth Screens:** Sign In, Sign Up, & Forgot Password dengan input *filled* abu-abu.
-  - **Home Dashboard:** Banner promosi & *grid* layanan servis.
+  - **Auth Screens:** Sign In, Sign Up, & Forgot Password dengan input *filled* abu-abu `#F5F5F5`.
+  - **Home Dashboard:** Banner promosi, salam pelanggan, & *grid 2x2* layanan.
 
 ---
 
-### **SLIDE 6: ALUR PEMESANAN (*BOOKING FLOW*)**
-- **Judul Slide:** Alur Pemesanan Servis Berantai
-- **Langkah Pemesanan:**
-  1. **Pilih Layanan:** Servis Rutin, Tune Up, AC Service, Ganti Ban, dll.
-  2. **Pilih Jadwal:** Penentuan tanggal dan jam kunjungan.
-  3. **Konfirmasi Booking:** Input detail kendaraan & catatan keluhan.
-  4. **Simpan Real-time:** Data otomatis masuk ke antrean Cloud Firestore.
-
----
-
-### **SLIDE 7: STATUS SERVIS REAL-TIME**
-- **Judul Slide:** Pelacakan Status Servis Live
+### **SLIDE 7: ALUR BOOKING & STATUS REAL-TIME**
+- **Judul Slide:** Fitur Booking & Status Live
 - **Visual Highlights:**
-  - **Indikator Progres:** 5 Tahapan (*Menunggu → Pengecekan → Pengerjaan → Quality Check → Selesai*).
-  - **Real-time Stream:** Tampilan pelanggan otomatis ter-update saat admin mengubah status.
+  - **Booking Wizard:** Layanan → Tanggal → Jam → Konfirmasi.
+  - **Status Servis Live:** Progress bar 5 tahapan pengerjaan (*Menunggu → Selesai*).
+  - **Admin Panel:** Pengelolaan antrean booking & pengubahan status servis.
 
 ---
 
