@@ -11,7 +11,7 @@
 
 - 📖 **[Laporan Lengkap Modul 5 (Markdown)](DOCS/LAPORAN_MODUL_5.md)**
 - 📄 **[Download Laporan PDF](LAPORAN_MODUL_5_201_AUTO_GARAGE.pdf)**
-- 📊 **[Download Slide Presentasi PPTX](PRESENTASI_201_AUTO_GARAGE_APP_DEV.pptx)**
+- 📊 **[Download Slide Presentasi PPTX (Dengan Code & Screenshots Showcase)](PRESENTASI_201_AUTO_GARAGE_WITH_CODE_AND_SS.pptx)**
 - 🎨 **[Desain UI/UX Figma](https://www.figma.com/file/201-AutoGarage-UI-Design)**
 
 ---
@@ -31,20 +31,33 @@
 
 ---
 
-## 🏗️ **Arsitektur Sistem:**
+## 💻 **Kodingan Utama (*Source Code Snippets*):**
 
+### 1. **Live Stream Status Servis Firestore (`booking_service.dart`):**
+```dart
+Stream<List<BookingModel>> streamActiveBookings() {
+  final uid = _auth.currentUser?.uid;
+  if (uid == null) return Stream.value([]);
+
+  return _db.collection('bookings')
+      .where('userId', isEqualTo: uid)
+      .where('status', whereIn: ['Menunggu', 'Proses Pengecekan', 'Sedang Dikerjakan', 'Quality Check'])
+      .snapshots()
+      .map((snapshot) => snapshot.docs
+          .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
+          .toList());
+}
 ```
-                  ┌─────────────────────────────────────────┐
-                  │ Flutter 201 Auto Garage App (Mobile)   │
-                  └────────────────────┬────────────────────┘
-                                       │
-                ┌──────────────────────┴──────────────────────┐
-                ▼                                             ▼
-  ┌───────────────────────────┐                 ┌───────────────────────────┐
-  │  Firebase Authentication  │                 │   Cloud Firestore Database│
-  │  - Email / Password       │                 │   - Bookings Collection   │
-  │  - Google Sign-In         │                 │   - User Profiles & Status│
-  └───────────────────────────┘                 └───────────────────────────┘
+
+### 2. **Navigasi Tombol Back Safe Guard (`PopScope`):**
+```dart
+PopScope(
+  canPop: false,
+  onPopInvokedWithResult: (bool didPop, Object? result) {
+    if (!didPop) _handleBack(context);
+  },
+  child: Scaffold(...),
+)
 ```
 
 ---
