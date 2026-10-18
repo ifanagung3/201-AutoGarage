@@ -7,11 +7,11 @@
 
 ---
 
-## 📑 **DOKUMEN LAPORAN & PRESENTASI (MODUL 5):**
+## 📑 **DOKUMEN LAPORAN & PRESENTASI (MODUL 5 - KELOMPOK 6 EXACT STRUCTURE):**
 
+- 📊 **[Download Presentation Deck PPTX (Exact Kelompok 6 Format)](PRESENTASI_MODUL_5_KELOMPOK_6_EXACT_STYLE.pptx)**
 - 📖 **[Laporan Lengkap Modul 5 (Markdown)](DOCS/LAPORAN_MODUL_5.md)**
 - 📄 **[Download Laporan PDF](LAPORAN_MODUL_5_201_AUTO_GARAGE.pdf)**
-- 📊 **[Download Slide Presentasi PPTX (Dengan Code & Screenshots Showcase)](PRESENTASI_201_AUTO_GARAGE_WITH_CODE_AND_SS.pptx)**
 - 🎨 **[Desain UI/UX Figma](https://www.figma.com/file/201-AutoGarage-UI-Design)**
 
 ---
