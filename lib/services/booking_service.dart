@@ -104,6 +104,22 @@ class BookingService {
         .handleError((_) => _getMockHistoryBookings());
   }
 
+  /// Admin: Stream All Bookings across all users
+  Stream<List<BookingModel>> streamAllBookings() {
+    return _db
+        .collection('bookings')
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.docs.isEmpty) {
+            return [..._getMockActiveBookings(), ..._getMockHistoryBookings()];
+          }
+          return snapshot.docs
+              .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
+              .toList();
+        })
+        .handleError((_) => [..._getMockActiveBookings(), ..._getMockHistoryBookings()]);
+  }
+
   /// Admin: Update Booking Status and Step
   Future<void> updateBookingStatus(String bookingId, String newStatus, int step) async {
     try {
