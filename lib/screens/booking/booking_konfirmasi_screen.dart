@@ -6,7 +6,16 @@ import '../../services/booking_service.dart';
 import '../../services/random_forest_service.dart';
 
 class BookingKonfirmasiScreen extends StatefulWidget {
-  const BookingKonfirmasiScreen({super.key});
+  final String serviceName;
+  final String bookingDate;
+  final String bookingTime;
+
+  const BookingKonfirmasiScreen({
+    super.key,
+    required this.serviceName,
+    required this.bookingDate,
+    required this.bookingTime,
+  });
 
   @override
   State<BookingKonfirmasiScreen> createState() => _BookingKonfirmasiScreenState();
@@ -19,9 +28,9 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
   bool _isLoading = false;
   bool _isPredicting = true;
 
-  double _estimatedCost = 1150000;
-  double _estimatedDurationHours = 3.8;
-  String _recommendation = "Disarankan melakukan pemeriksaan filter udara & ganti oli";
+  double _estimatedCost = 150000;
+  double _estimatedDurationHours = 2.5;
+  String _recommendation = "Disarankan melakukan pemeriksaan berkala & filter udara";
 
   @override
   void initState() {
@@ -34,10 +43,10 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
     final result = await RandomForestService.instance.predictViaApi(
       carBrand: 'Toyota',
       carModel: 'Avanza',
-      carYear: 2018,
-      serviceType: 'Tune Up',
-      mileage: 75000,
-      componentCount: 5,
+      carYear: 2020,
+      serviceType: widget.serviceName,
+      mileage: 35000,
+      componentCount: 3,
     );
 
     if (mounted) {
@@ -54,21 +63,25 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
     if (context.canPop()) {
       context.pop();
     } else {
-      context.go('/booking/waktu');
+      context.go('/booking/waktu?service=${Uri.encodeComponent(widget.serviceName)}&date=${Uri.encodeComponent(widget.bookingDate)}');
     }
   }
 
   Future<void> _submitBooking() async {
     setState(() => _isLoading = true);
     try {
+      final dateToSave = widget.bookingDate.isNotEmpty
+          ? DateTime.tryParse(widget.bookingDate) ?? DateTime.now().add(const Duration(days: 1))
+          : DateTime.now().add(const Duration(days: 1));
+
       await BookingService.instance.createBooking(
         vehicleName: 'Toyota Avanza 1.3 G',
         vehiclePlat: 'B 1234 AG',
-        vehicleYear: 2018,
-        vehicleKm: 75000,
-        serviceName: 'Tune Up',
-        bookingDate: DateTime.now().add(const Duration(days: 1)),
-        bookingTime: '09:00 WIB',
+        vehicleYear: 2020,
+        vehicleKm: 35000,
+        serviceName: widget.serviceName,
+        bookingDate: dateToSave,
+        bookingTime: widget.bookingTime.isNotEmpty ? widget.bookingTime : '09:00 WIB',
         estimatedCost: _estimatedCost,
         notes: _notesController.text.trim(),
       );
@@ -77,7 +90,7 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Booking berhasil disimpan!',
+              'Booking ${widget.serviceName} berhasil disimpan!',
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: Colors.green,
@@ -101,6 +114,9 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayDate = widget.bookingDate.isNotEmpty ? widget.bookingDate : 'Besok';
+    final displayTime = widget.bookingTime.isNotEmpty ? widget.bookingTime : '09:00 WIB';
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
@@ -152,7 +168,7 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Estimasi AI (Random Forest Regression)',
+                                'Estimasi Pengerjaan & Biaya',
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -183,11 +199,11 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                           const SizedBox(height: 10),
                           _DetailRow(
                             label: 'Estimasi Waktu',
-                            value: '3-4 jam (${_estimatedDurationHours.toStringAsFixed(1)} jam)',
+                            value: '${_estimatedDurationHours.toStringAsFixed(1)} jam',
                           ),
                           const SizedBox(height: 10),
                           _DetailRow(
-                            label: 'Rekomendasi AI',
+                            label: 'Catatan Layanan',
                             value: _recommendation,
                           ),
                         ],
@@ -215,15 +231,15 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                           ),
                         ),
                         const Divider(height: 20),
-                        const _DetailRow(label: 'Layanan', value: 'Tune Up'),
+                        _DetailRow(label: 'Layanan', value: widget.serviceName),
                         const SizedBox(height: 10),
-                        const _DetailRow(label: 'Kendaraan', value: 'Toyota Avanza 1.3 G (2018)'),
+                        const _DetailRow(label: 'Kendaraan', value: 'Toyota Avanza 1.3 G (2020)'),
                         const SizedBox(height: 10),
-                        const _DetailRow(label: 'Jarak Tempuh', value: '75.000 KM'),
+                        const _DetailRow(label: 'Odometer', value: '35.000 KM'),
                         const SizedBox(height: 10),
-                        const _DetailRow(label: 'Tanggal', value: '20 Oktober 2026'),
+                        _DetailRow(label: 'Tanggal Servis', value: displayDate),
                         const SizedBox(height: 10),
-                        const _DetailRow(label: 'Waktu', value: '09:00 WIB'),
+                        _DetailRow(label: 'Waktu Booking', value: displayTime),
                       ],
                     ),
                   ),

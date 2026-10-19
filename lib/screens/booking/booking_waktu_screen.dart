@@ -3,22 +3,34 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class BookingWaktuScreen extends StatefulWidget {
-  const BookingWaktuScreen({super.key});
+  final String serviceName;
+  final String bookingDate;
+
+  const BookingWaktuScreen({
+    super.key,
+    required this.serviceName,
+    required this.bookingDate,
+  });
 
   @override
   State<BookingWaktuScreen> createState() => _BookingWaktuScreenState();
 }
 
 class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
-  String? selectedTime;
-  final List<String> timeSlots = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
+  String? selectedTime = '09:00 WIB';
+  final List<String> timeSlots = ['08:00 WIB', '09:00 WIB', '10:00 WIB', '11:00 WIB', '13:00 WIB', '14:00 WIB', '15:00 WIB', '16:00 WIB'];
 
   void _handleBack() {
     if (context.canPop()) {
       context.pop();
     } else {
-      context.go('/booking/tanggal');
+      context.go('/booking/tanggal?service=${Uri.encodeComponent(widget.serviceName)}');
     }
+  }
+
+  void _proceedToConfirmation() {
+    if (selectedTime == null) return;
+    context.go('/booking/konfirmasi?service=${Uri.encodeComponent(widget.serviceName)}&date=${Uri.encodeComponent(widget.bookingDate)}&time=${Uri.encodeComponent(selectedTime!)}');
   }
 
   @override
@@ -32,7 +44,7 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Pilih Waktu'),
+          title: Text('Pilih Jam (${widget.serviceName})'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: _handleBack,
@@ -65,7 +77,7 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
                         child: Text(
                           time,
                           style: GoogleFonts.poppins(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: isSelected ? Colors.white : Colors.black,
                           ),
@@ -82,7 +94,7 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: selectedTime == null ? null : () => context.go('/booking/konfirmasi'),
+                  onPressed: selectedTime == null ? null : _proceedToConfirmation,
                   child: const Text('Lanjut'),
                 ),
               ),

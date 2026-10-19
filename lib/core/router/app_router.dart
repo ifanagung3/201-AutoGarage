@@ -53,10 +53,31 @@ final appRouter = GoRouter(
     ),
     
     GoRoute(path: '/estimasi', builder: (c, s) => const EstimasiBiayaScreen()),
-    GoRoute(path: '/booking/layanan', builder: (c, s) => const BookingLayananScreen()),
-    GoRoute(path: '/booking/tanggal', builder: (c, s) => const BookingTanggalScreen()),
-    GoRoute(path: '/booking/waktu', builder: (c, s) => const BookingWaktuScreen()),
-    GoRoute(path: '/booking/konfirmasi', builder: (c, s) => const BookingKonfirmasiScreen()),
+    GoRoute(
+      path: '/booking/layanan',
+      builder: (c, s) => const BookingLayananScreen(),
+    ),
+    GoRoute(
+      path: '/booking/tanggal',
+      builder: (c, s) => BookingTanggalScreen(
+        serviceName: s.uri.queryParameters['service'] ?? 'Servis Rutin',
+      ),
+    ),
+    GoRoute(
+      path: '/booking/waktu',
+      builder: (c, s) => BookingWaktuScreen(
+        serviceName: s.uri.queryParameters['service'] ?? 'Servis Rutin',
+        bookingDate: s.uri.queryParameters['date'] ?? '',
+      ),
+    ),
+    GoRoute(
+      path: '/booking/konfirmasi',
+      builder: (c, s) => BookingKonfirmasiScreen(
+        serviceName: s.uri.queryParameters['service'] ?? 'Servis Rutin',
+        bookingDate: s.uri.queryParameters['date'] ?? '',
+        bookingTime: s.uri.queryParameters['time'] ?? '09:00 WIB',
+      ),
+    ),
     
     GoRoute(path: '/akun/data-diri', builder: (c, s) => const DataDiriScreen()),
     GoRoute(path: '/akun/kendaraan', builder: (c, s) => const KendaraanSayaScreen()),
