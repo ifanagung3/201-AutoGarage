@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../models/booking_draft.dart';
 
 class BookingLayananScreen extends StatelessWidget {
-  const BookingLayananScreen({super.key});
+  const BookingLayananScreen({super.key, this.initialDraft});
+
+  final BookingDraft? initialDraft;
 
   void _handleBack(BuildContext context) {
     if (context.canPop()) {
@@ -37,28 +40,40 @@ class BookingLayananScreen extends StatelessWidget {
               title: 'Servis Rutin',
               description: 'Ganti oli, filter, dan pemeriksaan umum',
               price: 'Rp 150.000',
-              onTap: () => context.go('/booking/tanggal?service=${Uri.encodeComponent('Servis Rutin')}'),
+              onTap: () => context.push(
+                '/booking/tanggal',
+                extra: const BookingDraft(serviceName: 'Servis Rutin'),
+              ),
             ),
             const SizedBox(height: 12),
             _ServiceCard(
               title: 'Tune Up',
               description: 'Pembersihan mesin dan penyetelan performa',
               price: 'Rp 300.000',
-              onTap: () => context.go('/booking/tanggal?service=${Uri.encodeComponent('Tune Up')}'),
+              onTap: () => context.push(
+                '/booking/tanggal',
+                extra: const BookingDraft(serviceName: 'Tune Up'),
+              ),
             ),
             const SizedBox(height: 12),
             _ServiceCard(
               title: 'AC Service',
               description: 'Pembersihan dan pengisian freon AC',
               price: 'Rp 200.000',
-              onTap: () => context.go('/booking/tanggal?service=${Uri.encodeComponent('AC Service')}'),
+              onTap: () => context.push(
+                '/booking/tanggal',
+                extra: const BookingDraft(serviceName: 'AC Service'),
+              ),
             ),
             const SizedBox(height: 12),
             _ServiceCard(
               title: 'Ganti Ban',
               description: 'Penggantian dan balancing ban mobil',
               price: 'Rp 400.000',
-              onTap: () => context.go('/booking/tanggal?service=${Uri.encodeComponent('Ganti Ban')}'),
+              onTap: () => context.push(
+                '/booking/tanggal',
+                extra: const BookingDraft(serviceName: 'Ganti Ban'),
+              ),
             ),
           ],
         ),
@@ -94,18 +109,27 @@ class _ServiceCard extends StatelessWidget {
                   color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.build_circle, color: Color(0xFF3B82F6), size: 32),
+                child: const Icon(Icons.build_circle,
+                    color: Color(0xFF3B82F6), size: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
+                    Text(title,
+                        style: GoogleFonts.poppins(
+                            fontSize: 16, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
-                    Text(description, style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[600])),
+                    Text(description,
+                        style: GoogleFonts.poppins(
+                            fontSize: 13, color: Colors.grey[600])),
                     const SizedBox(height: 8),
-                    Text(price, style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF3B82F6))),
+                    Text(price,
+                        style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF3B82F6))),
                   ],
                 ),
               ),

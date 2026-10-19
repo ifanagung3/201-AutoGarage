@@ -30,6 +30,7 @@ import '../../screens/admin/admin_servis_screen.dart';
 import '../../screens/admin/admin_estimasi_screen.dart';
 import '../../screens/admin/admin_pelanggan_screen.dart';
 import '../../screens/admin/admin_promo_screen.dart';
+import '../../models/booking_draft.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
@@ -39,63 +40,76 @@ final appRouter = GoRouter(
     GoRoute(path: '/sign-in', builder: (c, s) => const SignInScreen()),
     GoRoute(path: '/sign-up', builder: (c, s) => const SignUpScreen()),
     GoRoute(path: '/otp', builder: (c, s) => const OtpScreen()),
-    GoRoute(path: '/forgot-password', builder: (c, s) => const ForgotPasswordScreen()),
-    GoRoute(path: '/complete-profile', builder: (c, s) => const CompleteProfileScreen()),
-    
+    GoRoute(
+        path: '/forgot-password',
+        builder: (c, s) => const ForgotPasswordScreen()),
+    GoRoute(
+        path: '/complete-profile',
+        builder: (c, s) => const CompleteProfileScreen()),
     ShellRoute(
       builder: (c, s, child) => MainShell(child: child),
       routes: [
         GoRoute(path: '/home', builder: (c, s) => const HomeScreen()),
         GoRoute(path: '/status', builder: (c, s) => const StatusServisScreen()),
-        GoRoute(path: '/riwayat', builder: (c, s) => const RiwayatServisScreen()),
+        GoRoute(
+            path: '/riwayat', builder: (c, s) => const RiwayatServisScreen()),
         GoRoute(path: '/akun', builder: (c, s) => const AkunScreen()),
       ],
     ),
-    
     GoRoute(path: '/estimasi', builder: (c, s) => const EstimasiBiayaScreen()),
     GoRoute(
       path: '/booking/layanan',
-      builder: (c, s) => const BookingLayananScreen(),
+      builder: (c, s) => BookingLayananScreen(
+        initialDraft: s.extra as BookingDraft?,
+      ),
     ),
     GoRoute(
       path: '/booking/tanggal',
       builder: (c, s) => BookingTanggalScreen(
-        serviceName: s.uri.queryParameters['service'] ?? 'Servis Rutin',
+        draft: s.extra as BookingDraft? ?? const BookingDraft(),
       ),
     ),
     GoRoute(
       path: '/booking/waktu',
       builder: (c, s) => BookingWaktuScreen(
-        serviceName: s.uri.queryParameters['service'] ?? 'Servis Rutin',
-        bookingDate: s.uri.queryParameters['date'] ?? '',
+        draft: s.extra as BookingDraft? ?? const BookingDraft(),
       ),
     ),
     GoRoute(
       path: '/booking/konfirmasi',
       builder: (c, s) => BookingKonfirmasiScreen(
-        serviceName: s.uri.queryParameters['service'] ?? 'Servis Rutin',
-        bookingDate: s.uri.queryParameters['date'] ?? '',
-        bookingTime: s.uri.queryParameters['time'] ?? '09:00 WIB',
+        draft: s.extra as BookingDraft? ?? const BookingDraft(),
       ),
     ),
-    
     GoRoute(path: '/akun/data-diri', builder: (c, s) => const DataDiriScreen()),
-    GoRoute(path: '/akun/kendaraan', builder: (c, s) => const KendaraanSayaScreen()),
+    GoRoute(
+        path: '/akun/kendaraan',
+        builder: (c, s) => const KendaraanSayaScreen()),
     GoRoute(path: '/akun/alamat', builder: (c, s) => const AlamatSayaScreen()),
     GoRoute(path: '/akun/promo', builder: (c, s) => const PromoScreen()),
     GoRoute(path: '/akun/bantuan', builder: (c, s) => const BantuanScreen()),
     GoRoute(path: '/akun/tentang', builder: (c, s) => const TentangScreen()),
-    GoRoute(path: '/akun/pengaturan', builder: (c, s) => const PengaturanScreen()),
-    
+    GoRoute(
+        path: '/akun/pengaturan', builder: (c, s) => const PengaturanScreen()),
     ShellRoute(
       builder: (c, s, child) => AdminShell(child: child),
       routes: [
-        GoRoute(path: '/admin', builder: (c, s) => const AdminDashboardScreen()),
-        GoRoute(path: '/admin/booking', builder: (c, s) => const AdminBookingScreen()),
-        GoRoute(path: '/admin/servis', builder: (c, s) => const AdminServisScreen()),
-        GoRoute(path: '/admin/estimasi', builder: (c, s) => const AdminEstimasiScreen()),
-        GoRoute(path: '/admin/pelanggan', builder: (c, s) => const AdminPelangganScreen()),
-        GoRoute(path: '/admin/promo', builder: (c, s) => const AdminPromoScreen()),
+        GoRoute(
+            path: '/admin', builder: (c, s) => const AdminDashboardScreen()),
+        GoRoute(
+            path: '/admin/booking',
+            builder: (c, s) => const AdminBookingScreen()),
+        GoRoute(
+            path: '/admin/servis',
+            builder: (c, s) => const AdminServisScreen()),
+        GoRoute(
+            path: '/admin/estimasi',
+            builder: (c, s) => const AdminEstimasiScreen()),
+        GoRoute(
+            path: '/admin/pelanggan',
+            builder: (c, s) => const AdminPelangganScreen()),
+        GoRoute(
+            path: '/admin/promo', builder: (c, s) => const AdminPromoScreen()),
       ],
     ),
   ],

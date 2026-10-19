@@ -4,33 +4,30 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../services/booking_service.dart';
 import '../../services/random_forest_service.dart';
+import '../../models/booking_draft.dart';
 
 class BookingKonfirmasiScreen extends StatefulWidget {
-  final String serviceName;
-  final String bookingDate;
-  final String bookingTime;
+  const BookingKonfirmasiScreen({super.key, required this.draft});
 
-  const BookingKonfirmasiScreen({
-    super.key,
-    required this.serviceName,
-    required this.bookingDate,
-    required this.bookingTime,
-  });
+  final BookingDraft draft;
 
   @override
-  State<BookingKonfirmasiScreen> createState() => _BookingKonfirmasiScreenState();
+  State<BookingKonfirmasiScreen> createState() =>
+      _BookingKonfirmasiScreenState();
 }
 
 class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
   final _notesController = TextEditingController();
-  final _currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+  final _currencyFormat =
+      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
   bool _isLoading = false;
   bool _isPredicting = true;
 
-  double _estimatedCost = 150000;
-  double _estimatedDurationHours = 2.5;
-  String _recommendation = "Disarankan melakukan pemeriksaan berkala & filter udara";
+  double _estimatedCost = 1150000;
+  double _estimatedDurationHours = 3.8;
+  String _recommendation =
+      "Disarankan melakukan pemeriksaan filter udara & ganti oli";
 
   @override
   void initState() {
@@ -43,10 +40,10 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
     final result = await RandomForestService.instance.predictViaApi(
       carBrand: 'Toyota',
       carModel: 'Avanza',
-      carYear: 2020,
-      serviceType: widget.serviceName,
-      mileage: 35000,
-      componentCount: 3,
+      carYear: 2018,
+      serviceType: widget.draft.serviceName ?? 'Servis Rutin',
+      mileage: 75000,
+      componentCount: 5,
     );
 
     if (mounted) {
@@ -63,25 +60,24 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
     if (context.canPop()) {
       context.pop();
     } else {
-      context.go('/booking/waktu?service=${Uri.encodeComponent(widget.serviceName)}&date=${Uri.encodeComponent(widget.bookingDate)}');
+      context.go('/booking/waktu', extra: widget.draft);
     }
   }
 
   Future<void> _submitBooking() async {
     setState(() => _isLoading = true);
     try {
-      final dateToSave = widget.bookingDate.isNotEmpty
-          ? DateTime.tryParse(widget.bookingDate) ?? DateTime.now().add(const Duration(days: 1))
-          : DateTime.now().add(const Duration(days: 1));
+      final dateToSave = widget.draft.bookingDate ?? DateTime.now().add(const Duration(days: 1));
+      final timeToSave = widget.draft.bookingTime != null ? '${widget.draft.bookingTime} WIB' : '09:00 WIB';
 
       await BookingService.instance.createBooking(
         vehicleName: 'Toyota Avanza 1.3 G',
         vehiclePlat: 'B 1234 AG',
-        vehicleYear: 2020,
-        vehicleKm: 35000,
-        serviceName: widget.serviceName,
+        vehicleYear: 2018,
+        vehicleKm: 75000,
+        serviceName: widget.draft.serviceName ?? 'Servis Rutin',
         bookingDate: dateToSave,
-        bookingTime: widget.bookingTime.isNotEmpty ? widget.bookingTime : '09:00 WIB',
+        bookingTime: timeToSave,
         estimatedCost: _estimatedCost,
         notes: _notesController.text.trim(),
       );
@@ -90,7 +86,7 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Booking ${widget.serviceName} berhasil disimpan!',
+              'Booking ${widget.draft.serviceName ?? ''} berhasil disimpan!',
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: Colors.green,
@@ -114,9 +110,6 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final displayDate = widget.bookingDate.isNotEmpty ? widget.bookingDate : 'Besok';
-    final displayTime = widget.bookingTime.isNotEmpty ? widget.bookingTime : '09:00 WIB';
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) {
@@ -131,7 +124,8 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
           elevation: 0,
           title: Text(
             'Konfirmasi Booking',
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+            style: GoogleFonts.poppins(
+                fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -150,7 +144,9 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF5B8DEF).withOpacity(0.3), width: 1.5),
+                      border: Border.all(
+                          color: const Color(0xFF5B8DEF).withOpacity(0.3),
+                          width: 1.5),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,12 +159,13 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                                 color: const Color(0xFF5B8DEF).withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.auto_awesome, color: Color(0xFF5B8DEF), size: 22),
+                              child: const Icon(Icons.auto_awesome,
+                                  color: Color(0xFF5B8DEF), size: 22),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Estimasi Pengerjaan & Biaya',
+                                'Estimasi AI (Random Forest Regression)',
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -186,7 +183,8 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                               child: SizedBox(
                                 width: 24,
                                 height: 24,
-                                child: CircularProgressIndicator(color: Color(0xFF5B8DEF), strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                    color: Color(0xFF5B8DEF), strokeWidth: 2),
                               ),
                             ),
                           )
@@ -199,11 +197,12 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                           const SizedBox(height: 10),
                           _DetailRow(
                             label: 'Estimasi Waktu',
-                            value: '${_estimatedDurationHours.toStringAsFixed(1)} jam',
+                            value:
+                                '3-4 jam (${_estimatedDurationHours.toStringAsFixed(1)} jam)',
                           ),
                           const SizedBox(height: 10),
                           _DetailRow(
-                            label: 'Catatan Layanan',
+                            label: 'Rekomendasi AI',
                             value: _recommendation,
                           ),
                         ],
@@ -231,15 +230,31 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                           ),
                         ),
                         const Divider(height: 20),
-                        _DetailRow(label: 'Layanan', value: widget.serviceName),
+                        _DetailRow(
+                            label: 'Layanan',
+                            value: widget.draft.serviceName ?? 'Servis Rutin'),
                         const SizedBox(height: 10),
-                        const _DetailRow(label: 'Kendaraan', value: 'Toyota Avanza 1.3 G (2020)'),
+                        const _DetailRow(
+                            label: 'Kendaraan',
+                            value: 'Toyota Avanza 1.3 G (2018)'),
                         const SizedBox(height: 10),
-                        const _DetailRow(label: 'Odometer', value: '35.000 KM'),
+                        const _DetailRow(
+                            label: 'Jarak Tempuh', value: '75.000 KM'),
                         const SizedBox(height: 10),
-                        _DetailRow(label: 'Tanggal Servis', value: displayDate),
+                        _DetailRow(
+                          label: 'Tanggal',
+                          value: widget.draft.bookingDate == null
+                              ? 'Besok'
+                              : DateFormat('d MMMM y', 'id_ID')
+                                  .format(widget.draft.bookingDate!),
+                        ),
                         const SizedBox(height: 10),
-                        _DetailRow(label: 'Waktu Booking', value: displayTime),
+                        _DetailRow(
+                          label: 'Waktu',
+                          value: widget.draft.bookingTime == null
+                              ? '09:00 WIB'
+                              : '${widget.draft.bookingTime} WIB',
+                        ),
                       ],
                     ),
                   ),
@@ -269,8 +284,10 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                           maxLines: 3,
                           style: GoogleFonts.poppins(fontSize: 13),
                           decoration: InputDecoration(
-                            hintText: 'Contoh: Suara mesin agak kasar saat RPM rendah',
-                            hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 13),
+                            hintText:
+                                'Contoh: Suara mesin agak kasar saat RPM rendah',
+                            hintStyle: GoogleFonts.poppins(
+                                color: Colors.grey[400], fontSize: 13),
                             filled: true,
                             fillColor: const Color(0xFFF8FAFC),
                             border: OutlineInputBorder(
@@ -306,7 +323,8 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
                         )
                       : Text(
                           'Konfirmasi Booking',
@@ -364,7 +382,9 @@ class _DetailRow extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: isHighlight ? 15 : 13,
               fontWeight: isHighlight ? FontWeight.bold : FontWeight.w600,
-              color: isHighlight ? const Color(0xFF5B8DEF) : const Color(0xFF1E293B),
+              color: isHighlight
+                  ? const Color(0xFF5B8DEF)
+                  : const Color(0xFF1E293B),
             ),
           ),
         ),

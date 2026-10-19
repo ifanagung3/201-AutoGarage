@@ -1,36 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../models/booking_draft.dart';
 
 class BookingWaktuScreen extends StatefulWidget {
-  final String serviceName;
-  final String bookingDate;
+  const BookingWaktuScreen({super.key, required this.draft});
 
-  const BookingWaktuScreen({
-    super.key,
-    required this.serviceName,
-    required this.bookingDate,
-  });
+  final BookingDraft draft;
 
   @override
   State<BookingWaktuScreen> createState() => _BookingWaktuScreenState();
 }
 
 class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
-  String? selectedTime = '09:00 WIB';
-  final List<String> timeSlots = ['08:00 WIB', '09:00 WIB', '10:00 WIB', '11:00 WIB', '13:00 WIB', '14:00 WIB', '15:00 WIB', '16:00 WIB'];
+  String? selectedTime = '09:00';
+  final List<String> timeSlots = [
+    '08:00',
+    '09:00',
+    '10:00',
+    '11:00',
+    '13:00',
+    '14:00',
+    '15:00',
+    '16:00'
+  ];
 
   void _handleBack() {
     if (context.canPop()) {
       context.pop();
     } else {
-      context.go('/booking/tanggal?service=${Uri.encodeComponent(widget.serviceName)}');
+      context.go('/booking/tanggal', extra: widget.draft);
     }
-  }
-
-  void _proceedToConfirmation() {
-    if (selectedTime == null) return;
-    context.go('/booking/konfirmasi?service=${Uri.encodeComponent(widget.serviceName)}&date=${Uri.encodeComponent(widget.bookingDate)}&time=${Uri.encodeComponent(selectedTime!)}');
   }
 
   @override
@@ -44,7 +44,7 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Pilih Jam (${widget.serviceName})'),
+          title: Text('Pilih Jam (${widget.draft.serviceName ?? 'Servis'})'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: _handleBack,
@@ -69,15 +69,19 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
                     onTap: () => setState(() => selectedTime = time),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF3B82F6) : Colors.white,
-                        border: Border.all(color: isSelected ? const Color(0xFF3B82F6) : Colors.grey[300]!),
+                        color:
+                            isSelected ? const Color(0xFF3B82F6) : Colors.white,
+                        border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFF3B82F6)
+                                : Colors.grey[300]!),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
                         child: Text(
                           time,
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: isSelected ? Colors.white : Colors.black,
                           ),
@@ -94,7 +98,14 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: selectedTime == null ? null : _proceedToConfirmation,
+                  onPressed: selectedTime == null
+                      ? null
+                      : () => context.push(
+                            '/booking/konfirmasi',
+                            extra: widget.draft.copyWith(
+                              bookingTime: selectedTime,
+                            ),
+                          ),
                   child: const Text('Lanjut'),
                 ),
               ),

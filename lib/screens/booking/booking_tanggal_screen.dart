@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import '../../models/booking_draft.dart';
 
 class BookingTanggalScreen extends StatefulWidget {
-  final String serviceName;
-  const BookingTanggalScreen({super.key, required this.serviceName});
+  const BookingTanggalScreen({super.key, required this.draft});
+
+  final BookingDraft draft;
 
   @override
   State<BookingTanggalScreen> createState() => _BookingTanggalScreenState();
@@ -17,14 +18,8 @@ class _BookingTanggalScreenState extends State<BookingTanggalScreen> {
     if (context.canPop()) {
       context.pop();
     } else {
-      context.go('/booking/layanan');
+      context.go('/booking/layanan', extra: widget.draft);
     }
-  }
-
-  void _proceedToTime() {
-    if (selectedDate == null) return;
-    final dateStr = DateFormat('dd MMMM yyyy', 'id_ID').format(selectedDate!);
-    context.go('/booking/waktu?service=${Uri.encodeComponent(widget.serviceName)}&date=${Uri.encodeComponent(dateStr)}');
   }
 
   @override
@@ -38,7 +33,7 @@ class _BookingTanggalScreenState extends State<BookingTanggalScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Pilih Tanggal (${widget.serviceName})'),
+          title: Text('Pilih Tanggal (${widget.draft.serviceName ?? 'Servis'})'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: _handleBack,
@@ -60,7 +55,14 @@ class _BookingTanggalScreenState extends State<BookingTanggalScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: selectedDate == null ? null : _proceedToTime,
+                  onPressed: selectedDate == null
+                      ? null
+                      : () => context.push(
+                            '/booking/waktu',
+                            extra: widget.draft.copyWith(
+                              bookingDate: selectedDate,
+                            ),
+                          ),
                   child: const Text('Lanjut'),
                 ),
               ),

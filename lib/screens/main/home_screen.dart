@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../models/booking_draft.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -65,7 +66,8 @@ class HomeScreen extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                            icon: const Icon(Icons.notifications_outlined,
+                                color: Colors.white),
                             onPressed: () {},
                           ),
                         ),
@@ -74,7 +76,8 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 20),
                     // Search Box
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
@@ -89,9 +92,11 @@ class HomeScreen extends StatelessWidget {
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: 'Cari layanan...',
-                          hintStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[400]),
+                          hintStyle: GoogleFonts.poppins(
+                              fontSize: 14, color: Colors.grey[400]),
                           border: InputBorder.none,
-                          prefixIcon: const Icon(Icons.search, color: Color(0xFF5B8DEF)),
+                          prefixIcon: const Icon(Icons.search,
+                              color: Color(0xFF5B8DEF)),
                         ),
                       ),
                     ),
@@ -99,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Random Forest AI Estimation Feature Card
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -215,7 +220,8 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
@@ -234,7 +240,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Layanan Section
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -248,7 +254,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Service Grid
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -264,25 +270,30 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.build_circle_outlined,
                       title: 'Servis Rutin',
                       color: const Color(0xFF5B8DEF),
-                      onTap: () => context.go('/booking/tanggal?service=${Uri.encodeComponent('Servis Rutin')}'),
+                      onTap: () => context.push('/booking/tanggal',
+                          extra:
+                              const BookingDraft(serviceName: 'Servis Rutin')),
                     ),
                     _ServiceCard(
                       icon: Icons.settings_outlined,
                       title: 'Tune Up',
                       color: const Color(0xFFEC4899),
-                      onTap: () => context.go('/booking/tanggal?service=${Uri.encodeComponent('Tune Up')}'),
+                      onTap: () => context.push('/booking/tanggal',
+                          extra: const BookingDraft(serviceName: 'Tune Up')),
                     ),
                     _ServiceCard(
                       icon: Icons.ac_unit_outlined,
                       title: 'AC Service',
                       color: const Color(0xFF8B5CF6),
-                      onTap: () => context.go('/booking/tanggal?service=${Uri.encodeComponent('AC Service')}'),
+                      onTap: () => context.push('/booking/tanggal',
+                          extra: const BookingDraft(serviceName: 'AC Service')),
                     ),
                     _ServiceCard(
                       icon: Icons.tire_repair_outlined,
                       title: 'Ganti Ban',
                       color: const Color(0xFF10B981),
-                      onTap: () => context.go('/booking/tanggal?service=${Uri.encodeComponent('Ganti Ban')}'),
+                      onTap: () => context.push('/booking/tanggal',
+                          extra: const BookingDraft(serviceName: 'Ganti Ban')),
                     ),
                   ],
                 ),
