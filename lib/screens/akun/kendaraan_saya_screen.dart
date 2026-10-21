@@ -33,7 +33,8 @@ class KendaraanSayaScreen extends StatelessWidget {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: const [
-            _VehicleCard(merk: 'Toyota Avanza', plat: 'B 1234 XYZ', tahun: '2020'),
+            _VehicleCard(
+                merk: 'Toyota Avanza', plat: 'B 1234 XYZ', tahun: '2020'),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -48,15 +49,20 @@ class KendaraanSayaScreen extends StatelessWidget {
 
 class _VehicleCard extends StatelessWidget {
   final String merk, plat, tahun;
-  const _VehicleCard({required this.merk, required this.plat, required this.tahun});
+  const _VehicleCard(
+      {required this.merk, required this.plat, required this.tahun});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        leading: const CircleAvatar(backgroundColor: Color(0xFF3B82F6), child: Icon(Icons.directions_car, color: Colors.white)),
-        title: Text(merk, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        subtitle: Text('$plat • $tahun', style: GoogleFonts.poppins(fontSize: 12)),
+        leading: const CircleAvatar(
+            backgroundColor: Color(0xFF3B82F6),
+            child: Icon(Icons.directions_car, color: Colors.white)),
+        title:
+            Text(merk, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        subtitle:
+            Text('$plat • $tahun', style: GoogleFonts.poppins(fontSize: 12)),
         trailing: IconButton(icon: const Icon(Icons.edit), onPressed: () {}),
       ),
     );

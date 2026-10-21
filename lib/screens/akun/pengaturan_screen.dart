@@ -41,7 +41,8 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
           children: [
             SwitchListTile(
               title: Text('Notifikasi', style: GoogleFonts.poppins()),
-              subtitle: Text('Aktifkan notifikasi untuk update servis', style: GoogleFonts.poppins(fontSize: 12)),
+              subtitle: Text('Aktifkan notifikasi untuk update servis',
+                  style: GoogleFonts.poppins(fontSize: 12)),
               value: _notifikasi,
               onChanged: (val) => setState(() => _notifikasi = val),
             ),

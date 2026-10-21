@@ -118,18 +118,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       style: GoogleFonts.poppins(fontSize: 14, color: authInk),
                       decoration: InputDecoration(
                         hintText: 'Email',
-                        hintStyle: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFFADB0BF)),
+                        hintStyle: GoogleFonts.poppins(
+                            fontSize: 14, color: const Color(0xFFADB0BF)),
                         filled: true,
                         fillColor: const Color(0xFFF0F0F6),
-                        prefixIcon: const Icon(Icons.mail_outline_rounded, size: 23, color: Color(0xFFC5C7D2)),
-                        prefixIconConstraints: const BoxConstraints(minWidth: 54),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide.none),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide.none),
+                        prefixIcon: const Icon(Icons.mail_outline_rounded,
+                            size: 23, color: Color(0xFFC5C7D2)),
+                        prefixIconConstraints:
+                            const BoxConstraints(minWidth: 54),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11),
+                            borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11),
+                            borderSide: BorderSide.none),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(11),
-                          borderSide: const BorderSide(color: Color(0xFF6678CB)),
+                          borderSide:
+                              const BorderSide(color: Color(0xFF6678CB)),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 18),
                       ),
                     ),
                     const SizedBox(height: 28),
@@ -141,9 +150,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
                             )
-                          : Text('Send Reset Link', style: GoogleFonts.poppins(fontSize: 16)),
+                          : Text('Send Reset Link',
+                              style: GoogleFonts.poppins(fontSize: 16)),
                     ),
                     const Spacer(),
                   ],

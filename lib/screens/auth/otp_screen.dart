@@ -11,7 +11,8 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-  final List<TextEditingController> _controllers = List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _controllers =
+      List.generate(4, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
 
   void _handleBack() {
@@ -73,7 +74,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       ),
                     ),
                     const SizedBox(height: 48),
-                    
+
                     // OTP Input Boxes
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -102,7 +103,8 @@ class _OtpScreenState extends State<OtpScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Color(0xFF6678CB), width: 2),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF6678CB), width: 2),
                               ),
                             ),
                             onChanged: (value) {
@@ -118,16 +120,20 @@ class _OtpScreenState extends State<OtpScreen> {
                       }),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Resend OTP
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Tidak menerima kode? ', style: GoogleFonts.poppins(fontSize: 14, color: authInk)),
+                        Text('Tidak menerima kode? ',
+                            style: GoogleFonts.poppins(
+                                fontSize: 14, color: authInk)),
                         GestureDetector(
                           onTap: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Kode OTP telah dikirim ulang')),
+                              const SnackBar(
+                                  content:
+                                      Text('Kode OTP telah dikirim ulang')),
                             );
                           },
                           child: Text(
@@ -142,7 +148,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       ],
                     ),
                     const Spacer(),
-                    
+
                     // Verify Button
                     GradientAction(
                       onPressed: () {
@@ -151,11 +157,13 @@ class _OtpScreenState extends State<OtpScreen> {
                           context.go('/home');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Masukkan 4 digit OTP')),
+                            const SnackBar(
+                                content: Text('Masukkan 4 digit OTP')),
                           );
                         }
                       },
-                      child: Text('Verify', style: GoogleFonts.poppins(fontSize: 16)),
+                      child: Text('Verify',
+                          style: GoogleFonts.poppins(fontSize: 16)),
                     ),
                     const SizedBox(height: 30),
                   ],

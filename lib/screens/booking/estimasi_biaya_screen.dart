@@ -13,7 +13,8 @@ class EstimasiBiayaScreen extends StatefulWidget {
 }
 
 class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
-  final _currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+  final _currencyFormat =
+      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
   String _selectedCategory = 'Servis Rutin';
   String _selectedVehicleType = 'MPV';
@@ -184,7 +185,8 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                     // Category Dropdown
                     Text(
                       'Jenis Layanan',
-                      style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700]),
+                      style: GoogleFonts.poppins(
+                          fontSize: 13, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
@@ -196,10 +198,14 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
                       ),
                       items: _categories
-                          .map((c) => DropdownMenuItem(value: c, child: Text(c, style: GoogleFonts.poppins(fontSize: 14))))
+                          .map((c) => DropdownMenuItem(
+                              value: c,
+                              child: Text(c,
+                                  style: GoogleFonts.poppins(fontSize: 14))))
                           .toList(),
                       onChanged: (val) {
                         if (val != null) {
@@ -217,7 +223,9 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Tipe Bodi', style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700])),
+                              Text('Tipe Bodi',
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 13, color: Colors.grey[700])),
                               const SizedBox(height: 6),
                               DropdownButtonFormField<String>(
                                 value: _selectedVehicleType,
@@ -228,10 +236,15 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide.none,
                                   ),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 12),
                                 ),
                                 items: _vehicleTypes
-                                    .map((v) => DropdownMenuItem(value: v, child: Text(v, style: GoogleFonts.poppins(fontSize: 14))))
+                                    .map((v) => DropdownMenuItem(
+                                        value: v,
+                                        child: Text(v,
+                                            style: GoogleFonts.poppins(
+                                                fontSize: 14))))
                                     .toList(),
                                 onChanged: (val) {
                                   if (val != null) {
@@ -248,7 +261,9 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Tahun Pembuatan', style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700])),
+                              Text('Tahun Pembuatan',
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 13, color: Colors.grey[700])),
                               const SizedBox(height: 6),
                               DropdownButtonFormField<int>(
                                 value: _selectedYear,
@@ -259,11 +274,17 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide.none,
                                   ),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 12),
                                 ),
-                                items: List.generate(20, (index) => 2026 - index)
-                                    .map((y) => DropdownMenuItem(value: y, child: Text(y.toString(), style: GoogleFonts.poppins(fontSize: 14))))
-                                    .toList(),
+                                items:
+                                    List.generate(20, (index) => 2026 - index)
+                                        .map((y) => DropdownMenuItem(
+                                            value: y,
+                                            child: Text(y.toString(),
+                                                style: GoogleFonts.poppins(
+                                                    fontSize: 14))))
+                                        .toList(),
                                 onChanged: (val) {
                                   if (val != null) {
                                     _selectedYear = val;
@@ -282,8 +303,14 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Jarak Tempuh (Kilometer)', style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700])),
-                        Text('${_kilometer.toString()} KM', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF5B8DEF))),
+                        Text('Jarak Tempuh (Kilometer)',
+                            style: GoogleFonts.poppins(
+                                fontSize: 13, color: Colors.grey[700])),
+                        Text('${_kilometer.toString()} KM',
+                            style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF5B8DEF))),
                       ],
                     ),
                     Slider(
@@ -300,12 +327,17 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                     const SizedBox(height: 12),
 
                     // Spareparts Options
-                    Text('Pilihan Komponen / Replacement', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF1E293B))),
+                    Text('Pilihan Komponen / Replacement',
+                        style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1E293B))),
                     const SizedBox(height: 8),
                     CheckboxListTile(
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      title: Text('Oli Mesin Synth (4 Liter)', style: GoogleFonts.poppins(fontSize: 13)),
+                      title: Text('Oli Mesin Synth (4 Liter)',
+                          style: GoogleFonts.poppins(fontSize: 13)),
                       value: _replaceEngineOil,
                       activeColor: const Color(0xFF5B8DEF),
                       onChanged: (val) {
@@ -316,7 +348,8 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                     CheckboxListTile(
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      title: Text('Filter Oli & Filter Udara', style: GoogleFonts.poppins(fontSize: 13)),
+                      title: Text('Filter Oli & Filter Udara',
+                          style: GoogleFonts.poppins(fontSize: 13)),
                       value: _replaceFilter,
                       activeColor: const Color(0xFF5B8DEF),
                       onChanged: (val) {
@@ -327,7 +360,8 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                     CheckboxListTile(
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      title: Text('Kampas Rem (Brake Pad Set)', style: GoogleFonts.poppins(fontSize: 13)),
+                      title: Text('Kampas Rem (Brake Pad Set)',
+                          style: GoogleFonts.poppins(fontSize: 13)),
                       value: _replaceBrakePad,
                       activeColor: const Color(0xFF5B8DEF),
                       onChanged: (val) {
@@ -338,7 +372,8 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                     CheckboxListTile(
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      title: Text('Busi Iridium Set', style: GoogleFonts.poppins(fontSize: 13)),
+                      title: Text('Busi Iridium Set',
+                          style: GoogleFonts.poppins(fontSize: 13)),
                       value: _replaceSparkPlugs,
                       activeColor: const Color(0xFF5B8DEF),
                       onChanged: (val) {
@@ -358,7 +393,9 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF5B8DEF).withOpacity(0.3), width: 1.5),
+                    border: Border.all(
+                        color: const Color(0xFF5B8DEF).withOpacity(0.3),
+                        width: 1.5),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,16 +403,24 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Hasil Prediksi Estimasi', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B))),
+                          Text('Hasil Prediksi Estimasi',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF1E293B))),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: const Color(0xFF10B981).withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               'Akurasi 94%',
-                              style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF10B981)),
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF10B981)),
                             ),
                           ),
                         ],
@@ -386,7 +431,9 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                       Center(
                         child: Column(
                           children: [
-                            Text('Estimasi Biaya Total', style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[600])),
+                            Text('Estimasi Biaya Total',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 13, color: Colors.grey[600])),
                             const SizedBox(height: 4),
                             Text(
                               _currencyFormat.format(_result!.estimatedCost),
@@ -399,7 +446,8 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                             const SizedBox(height: 4),
                             Text(
                               'Rentang Estimasi: ${_currencyFormat.format(_result!.minCost)} - ${_currencyFormat.format(_result!.maxCost)}',
-                              style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12, color: Colors.grey[600]),
                             ),
                           ],
                         ),
@@ -417,7 +465,8 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                           ),
                           _CostDetailTile(
                             title: 'Sparepart',
-                            value: _currencyFormat.format(_result!.sparepartCost),
+                            value:
+                                _currencyFormat.format(_result!.sparepartCost),
                             icon: Icons.extension,
                           ),
                           _CostDetailTile(
@@ -439,8 +488,12 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _MetricItem(label: 'MAPE Error', value: '${metrics['mape']}%'),
-                            _MetricItem(label: 'R-Squared', value: '${metrics['rSquared']}'),
+                            _MetricItem(
+                                label: 'MAPE Error',
+                                value: '${metrics['mape']}%'),
+                            _MetricItem(
+                                label: 'R-Squared',
+                                value: '${metrics['rSquared']}'),
                             _MetricItem(label: 'RMSE', value: 'Rp 18.5k'),
                           ],
                         ),
@@ -477,7 +530,8 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                        const Icon(Icons.arrow_forward,
+                            color: Colors.white, size: 20),
                       ],
                     ),
                   ),
@@ -509,8 +563,13 @@ class _CostDetailTile extends StatelessWidget {
       children: [
         Icon(icon, color: const Color(0xFF5B8DEF), size: 22),
         const SizedBox(height: 4),
-        Text(title, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600])),
-        Text(value, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B))),
+        Text(title,
+            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600])),
+        Text(value,
+            style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1E293B))),
       ],
     );
   }
@@ -529,8 +588,13 @@ class _MetricItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label, style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[600])),
-        Text(value, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF5B8DEF))),
+        Text(label,
+            style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[600])),
+        Text(value,
+            style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF5B8DEF))),
       ],
     );
   }

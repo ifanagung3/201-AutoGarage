@@ -9,7 +9,8 @@ class RiwayatServisScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final currencyFormat =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     final dateFormat = DateFormat('dd MMMM yyyy', 'id_ID');
 
     return Scaffold(
@@ -53,7 +54,7 @@ class RiwayatServisScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Stream History List
             Expanded(
               child: StreamBuilder<List<BookingModel>>(
@@ -61,7 +62,8 @@ class RiwayatServisScreen extends StatelessWidget {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                      child: CircularProgressIndicator(color: Color(0xFF5B8DEF)),
+                      child:
+                          CircularProgressIndicator(color: Color(0xFF5B8DEF)),
                     );
                   }
 
@@ -71,7 +73,8 @@ class RiwayatServisScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.history_toggle_off, size: 60, color: Colors.grey[400]),
+                          Icon(Icons.history_toggle_off,
+                              size: 60, color: Colors.grey[400]),
                           const SizedBox(height: 12),
                           Text(
                             'Belum Ada Riwayat Servis',
@@ -123,9 +126,13 @@ class RiwayatServisScreen extends StatelessWidget {
                                   ),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: (isSuccess ? const Color(0xFF10B981) : Colors.red).withOpacity(0.1),
+                                    color: (isSuccess
+                                            ? const Color(0xFF10B981)
+                                            : Colors.red)
+                                        .withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -133,7 +140,9 @@ class RiwayatServisScreen extends StatelessWidget {
                                     style: GoogleFonts.poppins(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: isSuccess ? const Color(0xFF10B981) : Colors.red,
+                                      color: isSuccess
+                                          ? const Color(0xFF10B981)
+                                          : Colors.red,
                                     ),
                                   ),
                                 ),
@@ -145,7 +154,8 @@ class RiwayatServisScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF5B8DEF).withOpacity(0.1),
+                                    color: const Color(0xFF5B8DEF)
+                                        .withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Icon(
@@ -157,7 +167,8 @@ class RiwayatServisScreen extends StatelessWidget {
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '${item.serviceName} - ${item.vehicleName}',

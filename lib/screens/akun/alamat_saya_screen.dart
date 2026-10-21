@@ -33,7 +33,9 @@ class AlamatSayaScreen extends StatelessWidget {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: const [
-            _AddressCard(label: 'Rumah', address: 'Jl. Raya Jakarta No. 123, Jakarta Barat'),
+            _AddressCard(
+                label: 'Rumah',
+                address: 'Jl. Raya Jakarta No. 123, Jakarta Barat'),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -54,8 +56,11 @@ class _AddressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        leading: const CircleAvatar(backgroundColor: Color(0xFF3B82F6), child: Icon(Icons.location_on, color: Colors.white)),
-        title: Text(label, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        leading: const CircleAvatar(
+            backgroundColor: Color(0xFF3B82F6),
+            child: Icon(Icons.location_on, color: Colors.white)),
+        title: Text(label,
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         subtitle: Text(address, style: GoogleFonts.poppins(fontSize: 12)),
         trailing: IconButton(icon: const Icon(Icons.edit), onPressed: () {}),
       ),

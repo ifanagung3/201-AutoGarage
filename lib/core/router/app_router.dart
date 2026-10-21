@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+
 import '../../screens/auth/splash_screen.dart';
 import '../../screens/auth/onboarding_screen.dart';
 import '../../screens/auth/sign_in_screen.dart';
@@ -31,9 +32,18 @@ import '../../screens/admin/admin_estimasi_screen.dart';
 import '../../screens/admin/admin_pelanggan_screen.dart';
 import '../../screens/admin/admin_promo_screen.dart';
 import '../../models/booking_draft.dart';
+import '../../services/admin_access_service.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
+  redirect: (context, state) async {
+    if (!state.matchedLocation.startsWith('/admin')) return null;
+    if (FirebaseAuth.instance.currentUser == null) return '/sign-in';
+    final allowed = await AdminAccessService.instance.isCurrentUserAdmin();
+    return allowed ? null : '/home';
+  },
   routes: [
     GoRoute(path: '/splash', builder: (c, s) => const SplashScreen()),
     GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
@@ -41,27 +51,30 @@ final appRouter = GoRouter(
     GoRoute(path: '/sign-up', builder: (c, s) => const SignUpScreen()),
     GoRoute(path: '/otp', builder: (c, s) => const OtpScreen()),
     GoRoute(
-        path: '/forgot-password',
-        builder: (c, s) => const ForgotPasswordScreen()),
+      path: '/forgot-password',
+      builder: (c, s) => const ForgotPasswordScreen(),
+    ),
     GoRoute(
-        path: '/complete-profile',
-        builder: (c, s) => const CompleteProfileScreen()),
+      path: '/complete-profile',
+      builder: (c, s) => const CompleteProfileScreen(),
+    ),
     ShellRoute(
       builder: (c, s, child) => MainShell(child: child),
       routes: [
         GoRoute(path: '/home', builder: (c, s) => const HomeScreen()),
         GoRoute(path: '/status', builder: (c, s) => const StatusServisScreen()),
         GoRoute(
-            path: '/riwayat', builder: (c, s) => const RiwayatServisScreen()),
+          path: '/riwayat',
+          builder: (c, s) => const RiwayatServisScreen(),
+        ),
         GoRoute(path: '/akun', builder: (c, s) => const AkunScreen()),
       ],
     ),
     GoRoute(path: '/estimasi', builder: (c, s) => const EstimasiBiayaScreen()),
     GoRoute(
       path: '/booking/layanan',
-      builder: (c, s) => BookingLayananScreen(
-        initialDraft: s.extra as BookingDraft?,
-      ),
+      builder: (c, s) =>
+          BookingLayananScreen(initialDraft: s.extra as BookingDraft?),
     ),
     GoRoute(
       path: '/booking/tanggal',
@@ -83,33 +96,44 @@ final appRouter = GoRouter(
     ),
     GoRoute(path: '/akun/data-diri', builder: (c, s) => const DataDiriScreen()),
     GoRoute(
-        path: '/akun/kendaraan',
-        builder: (c, s) => const KendaraanSayaScreen()),
+      path: '/akun/kendaraan',
+      builder: (c, s) => const KendaraanSayaScreen(),
+    ),
     GoRoute(path: '/akun/alamat', builder: (c, s) => const AlamatSayaScreen()),
     GoRoute(path: '/akun/promo', builder: (c, s) => const PromoScreen()),
     GoRoute(path: '/akun/bantuan', builder: (c, s) => const BantuanScreen()),
     GoRoute(path: '/akun/tentang', builder: (c, s) => const TentangScreen()),
     GoRoute(
-        path: '/akun/pengaturan', builder: (c, s) => const PengaturanScreen()),
+      path: '/akun/pengaturan',
+      builder: (c, s) => const PengaturanScreen(),
+    ),
     ShellRoute(
       builder: (c, s, child) => AdminShell(child: child),
       routes: [
         GoRoute(
-            path: '/admin', builder: (c, s) => const AdminDashboardScreen()),
+          path: '/admin',
+          builder: (c, s) => const AdminDashboardScreen(),
+        ),
         GoRoute(
-            path: '/admin/booking',
-            builder: (c, s) => const AdminBookingScreen()),
+          path: '/admin/booking',
+          builder: (c, s) => const AdminBookingScreen(),
+        ),
         GoRoute(
-            path: '/admin/servis',
-            builder: (c, s) => const AdminServisScreen()),
+          path: '/admin/servis',
+          builder: (c, s) => const AdminServisScreen(),
+        ),
         GoRoute(
-            path: '/admin/estimasi',
-            builder: (c, s) => const AdminEstimasiScreen()),
+          path: '/admin/estimasi',
+          builder: (c, s) => const AdminEstimasiScreen(),
+        ),
         GoRoute(
-            path: '/admin/pelanggan',
-            builder: (c, s) => const AdminPelangganScreen()),
+          path: '/admin/pelanggan',
+          builder: (c, s) => const AdminPelangganScreen(),
+        ),
         GoRoute(
-            path: '/admin/promo', builder: (c, s) => const AdminPromoScreen()),
+          path: '/admin/promo',
+          builder: (c, s) => const AdminPromoScreen(),
+        ),
       ],
     ),
   ],

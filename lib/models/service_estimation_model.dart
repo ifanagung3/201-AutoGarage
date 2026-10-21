@@ -1,5 +1,6 @@
 class ServiceEstimationInput {
-  final String category; // 'Servis Rutin', 'Tune Up', 'AC Service', 'Ganti Ban', 'Overhaul Mesin', 'Kaki-kaki'
+  final String
+      category; // 'Servis Rutin', 'Tune Up', 'AC Service', 'Ganti Ban', 'Overhaul Mesin', 'Kaki-kaki'
   final String vehicleType; // 'MPV', 'SUV', 'Sedan', 'Hatchback', 'City Car'
   final int year;
   final int kilometer;

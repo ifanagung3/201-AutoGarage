@@ -34,12 +34,25 @@ class BantuanScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           children: [
             ExpansionTile(
-              title: Text('Bagaimana cara booking servis?', style: GoogleFonts.poppins()),
-              children: [Padding(padding: const EdgeInsets.all(16), child: Text('Pilih layanan → Pilih tanggal → Pilih waktu → Konfirmasi booking.', style: GoogleFonts.poppins(fontSize: 14)))],
+              title: Text('Bagaimana cara booking servis?',
+                  style: GoogleFonts.poppins()),
+              children: [
+                Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                        'Pilih layanan → Pilih tanggal → Pilih waktu → Konfirmasi booking.',
+                        style: GoogleFonts.poppins(fontSize: 14)))
+              ],
             ),
             ExpansionTile(
-              title: Text('Bagaimana cara membatalkan booking?', style: GoogleFonts.poppins()),
-              children: [Padding(padding: const EdgeInsets.all(16), child: Text('Hubungi admin melalui WhatsApp atau telepon.', style: GoogleFonts.poppins(fontSize: 14)))],
+              title: Text('Bagaimana cara membatalkan booking?',
+                  style: GoogleFonts.poppins()),
+              children: [
+                Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text('Hubungi admin melalui WhatsApp atau telepon.',
+                        style: GoogleFonts.poppins(fontSize: 14)))
+              ],
             ),
           ],
         ),

@@ -26,7 +26,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   }
 
   Future<void> _completeProfile() async {
-    if (_phoneController.text.trim().isEmpty || _addressController.text.trim().isEmpty) {
+    if (_phoneController.text.trim().isEmpty ||
+        _addressController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Semua field harus diisi')),
       );
@@ -37,7 +38,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({
           'phone': _phoneController.text.trim(),
           'address': _addressController.text.trim(),
           'profileCompleted': true,
@@ -99,7 +103,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     Text(
                       'Lengkapi profil Anda untuk melanjutkan',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(fontSize: 14, color: authMuted),
+                      style:
+                          GoogleFonts.poppins(fontSize: 14, color: authMuted),
                     ),
                     const SizedBox(height: 36),
 
@@ -111,18 +116,27 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                       style: GoogleFonts.poppins(fontSize: 14, color: authInk),
                       decoration: InputDecoration(
                         hintText: 'Nomor Telepon',
-                        hintStyle: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFFADB0BF)),
+                        hintStyle: GoogleFonts.poppins(
+                            fontSize: 14, color: const Color(0xFFADB0BF)),
                         filled: true,
                         fillColor: const Color(0xFFF0F0F6),
-                        prefixIcon: const Icon(Icons.phone_outlined, size: 23, color: Color(0xFFC5C7D2)),
-                        prefixIconConstraints: const BoxConstraints(minWidth: 54),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide.none),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide.none),
+                        prefixIcon: const Icon(Icons.phone_outlined,
+                            size: 23, color: Color(0xFFC5C7D2)),
+                        prefixIconConstraints:
+                            const BoxConstraints(minWidth: 54),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11),
+                            borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11),
+                            borderSide: BorderSide.none),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(11),
-                          borderSide: const BorderSide(color: Color(0xFF6678CB)),
+                          borderSide:
+                              const BorderSide(color: Color(0xFF6678CB)),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 18),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -135,21 +149,30 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                       style: GoogleFonts.poppins(fontSize: 14, color: authInk),
                       decoration: InputDecoration(
                         hintText: 'Alamat Lengkap',
-                        hintStyle: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFFADB0BF)),
+                        hintStyle: GoogleFonts.poppins(
+                            fontSize: 14, color: const Color(0xFFADB0BF)),
                         filled: true,
                         fillColor: const Color(0xFFF0F0F6),
                         prefixIcon: const Padding(
                           padding: EdgeInsets.only(bottom: 40),
-                          child: Icon(Icons.location_on_outlined, size: 23, color: Color(0xFFC5C7D2)),
+                          child: Icon(Icons.location_on_outlined,
+                              size: 23, color: Color(0xFFC5C7D2)),
                         ),
-                        prefixIconConstraints: const BoxConstraints(minWidth: 54),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide.none),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide.none),
+                        prefixIconConstraints:
+                            const BoxConstraints(minWidth: 54),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11),
+                            borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11),
+                            borderSide: BorderSide.none),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(11),
-                          borderSide: const BorderSide(color: Color(0xFF6678CB)),
+                          borderSide:
+                              const BorderSide(color: Color(0xFF6678CB)),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 18),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -161,9 +184,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
                             )
-                          : Text('Complete Profile', style: GoogleFonts.poppins(fontSize: 16)),
+                          : Text('Complete Profile',
+                              style: GoogleFonts.poppins(fontSize: 16)),
                     ),
                     const SizedBox(height: 16),
 

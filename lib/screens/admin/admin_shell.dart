@@ -37,12 +37,24 @@ class AdminShell extends StatelessWidget {
           currentIndex: currentIndex,
           onTap: (index) {
             switch (index) {
-              case 0: context.go('/admin'); break;
-              case 1: context.go('/admin/booking'); break;
-              case 2: context.go('/admin/servis'); break;
-              case 3: context.go('/admin/estimasi'); break;
-              case 4: context.go('/admin/pelanggan'); break;
-              case 5: context.go('/admin/promo'); break;
+              case 0:
+                context.go('/admin');
+                break;
+              case 1:
+                context.go('/admin/booking');
+                break;
+              case 2:
+                context.go('/admin/servis');
+                break;
+              case 3:
+                context.go('/admin/estimasi');
+                break;
+              case 4:
+                context.go('/admin/pelanggan');
+                break;
+              case 5:
+                context.go('/admin/promo');
+                break;
             }
           },
           type: BottomNavigationBarType.fixed,
@@ -50,12 +62,17 @@ class AdminShell extends StatelessWidget {
           selectedItemColor: const Color(0xFFEA580C),
           unselectedItemColor: Colors.grey,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-            BottomNavigationBarItem(icon: Icon(Icons.book_online), label: 'Booking'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.dashboard), label: 'Dashboard'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.book_online), label: 'Booking'),
             BottomNavigationBarItem(icon: Icon(Icons.build), label: 'Servis'),
-            BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: 'Estimasi'),
-            BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Pelanggan'),
-            BottomNavigationBarItem(icon: Icon(Icons.local_offer), label: 'Promo'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.attach_money), label: 'Estimasi'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.people), label: 'Pelanggan'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.local_offer), label: 'Promo'),
           ],
         ),
       ),

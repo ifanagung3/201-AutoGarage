@@ -8,7 +8,7 @@ import 'core/router/app_router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initializeDateFormatting('id_ID', null);
+  await initializeDateFormatting('id_ID');
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

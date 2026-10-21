@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'auth_visuals.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -20,10 +19,8 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _obscurePassword = true;
 
   Future<void> _signInWithEmail() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email dan password harus diisi')),
       );
@@ -31,21 +28,11 @@ class _SignInScreenState extends State<SignInScreen> {
     }
     setState(() => _isLoading = true);
     try {
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
-
-      final user = userCredential.user;
-      if (user != null && mounted) {
-        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-        final role = doc.data()?['role'] ?? 'user';
-        if (role == 'admin' || email == 'admin@autogarage.com') {
-          context.go('/admin');
-        } else {
-          context.go('/home');
-        }
-      }
+      if (mounted) context.go('/home');
     } on FirebaseAuthException catch (e) {
       String msg = 'Login gagal: ${e.message}';
       if (e.code == 'user-not-found') msg = 'Akun belum terdaftar';
@@ -73,23 +60,14 @@ class _SignInScreenState extends State<SignInScreen> {
       if (googleUser == null) {
         return;
       }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-
-      final user = userCredential.user;
-      if (user != null && mounted) {
-        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-        final role = doc.data()?['role'] ?? 'user';
-        if (role == 'admin' || user.email == 'admin@autogarage.com') {
-          context.go('/admin');
-        } else {
-          context.go('/home');
-        }
-      }
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      if (mounted) context.go('/home');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -361,6 +339,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 }
 
+/// Local vector icon: avoids passing an SVG to Flutter's raster decoder.
 class _GoogleMarkPainter extends CustomPainter {
   const _GoogleMarkPainter();
   @override

@@ -43,10 +43,12 @@ class AkunScreen extends StatelessWidget {
                               height: 80,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.person, size: 40, color: Color(0xFF5B8DEF)),
+                                  const Icon(Icons.person,
+                                      size: 40, color: Color(0xFF5B8DEF)),
                             ),
                           )
-                        : const Icon(Icons.person, size: 40, color: Color(0xFF5B8DEF)),
+                        : const Icon(Icons.person,
+                            size: 40, color: Color(0xFF5B8DEF)),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -69,7 +71,7 @@ class AkunScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Menu List
             Expanded(
               child: ListView(
@@ -124,7 +126,7 @@ class AkunScreen extends StatelessWidget {
                     onTap: () => context.go('/akun/pengaturan'),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Logout Button
                   SizedBox(
                     width: double.infinity,

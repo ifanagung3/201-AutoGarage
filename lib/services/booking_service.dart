@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/booking_model.dart';
 
 class BookingService {
@@ -11,7 +12,7 @@ class BookingService {
 
   String? get currentUserId => _auth.currentUser?.uid;
 
-  /// Submit New Booking with Initial Status Log
+  /// Submit New Booking
   Future<String> createBooking({
     required String vehicleName,
     required String vehiclePlat,
@@ -29,12 +30,6 @@ class BookingService {
     final phone = user?.phoneNumber ?? '-';
 
     final docRef = _db.collection('bookings').doc();
-    final initialLog = BookingStatusLog(
-      status: 'Menunggu',
-      updatedBy: name,
-      timestamp: DateTime.now(),
-    );
-
     final newBooking = BookingModel(
       id: docRef.id,
       userId: uid,
@@ -52,16 +47,11 @@ class BookingService {
       currentStep: 1,
       totalSteps: 5,
       notes: notes,
-      statusHistory: [initialLog],
       createdAt: DateTime.now(),
     );
 
-    try {
-      await docRef.set(newBooking.toFirestore());
-      return docRef.id;
-    } catch (e) {
-      return 'local_${DateTime.now().millisecondsSinceEpoch}';
-    }
+    await docRef.set(newBooking.toFirestore());
+    return docRef.id;
   }
 
   /// Get Stream of Active Bookings for User
@@ -74,7 +64,15 @@ class BookingService {
     return _db
         .collection('bookings')
         .where('userId', isEqualTo: uid)
-        .where('status', whereIn: ['Menunggu', 'Proses Pengecekan', 'Sedang Dikerjakan', 'Quality Check'])
+        .where(
+          'status',
+          whereIn: [
+            'Menunggu',
+            'Proses Pengecekan',
+            'Sedang Dikerjakan',
+            'Quality Check',
+          ],
+        )
         .snapshots()
         .map((snapshot) {
           if (snapshot.docs.isEmpty) {
@@ -110,48 +108,28 @@ class BookingService {
         .handleError((_) => _getMockHistoryBookings());
   }
 
-  /// Admin: Stream All Bookings across all users
+  /// Admin: Update Booking Status and Step
   Stream<List<BookingModel>> streamAllBookings() {
-    return _db
-        .collection('bookings')
-        .snapshots()
-        .map((snapshot) {
-          if (snapshot.docs.isEmpty) {
-            return [..._getMockActiveBookings(), ..._getMockHistoryBookings()];
-          }
-          return snapshot.docs
-              .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
-              .toList();
-        })
-        .handleError((_) => [..._getMockActiveBookings(), ..._getMockHistoryBookings()]);
+    return _db.collection('bookings').snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
+          .toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    });
   }
 
-  /// Admin: Update Booking Status with Audit Log
-  Future<void> updateBookingStatus(String bookingId, String newStatus, int step, {String updatedBy = 'Admin'}) async {
-    try {
-      final docRef = _db.collection('bookings').doc(bookingId);
-      final newLog = {
-        'status': newStatus,
-        'updatedBy': updatedBy,
-        'timestamp': Timestamp.fromDate(DateTime.now()),
-      };
-
-      await docRef.update({
-        'status': newStatus,
-        'currentStep': step,
-        'statusHistory': FieldValue.arrayUnion([newLog]),
-      });
-    } catch (_) {}
+  Future<void> updateBookingStatus(
+    String bookingId,
+    String newStatus,
+    int step,
+  ) async {
+    await _db.collection('bookings').doc(bookingId).update({
+      'status': newStatus,
+      'currentStep': step,
+    });
   }
 
-  /// Admin: Delete Booking with Confirmation
-  Future<void> deleteBooking(String bookingId) async {
-    try {
-      await _db.collection('bookings').doc(bookingId).delete();
-    } catch (_) {}
-  }
-
-  // Fallbacks so app UI is never empty
+  // Mock Fallbacks so app UI is never empty
   List<BookingModel> _getMockActiveBookings() {
     return [
       BookingModel(
@@ -171,11 +149,26 @@ class BookingService {
         currentStep: 3,
         totalSteps: 5,
         notes: 'Ganti oli mesin & cek rem',
-        statusHistory: [
-          BookingStatusLog(status: 'Menunggu', updatedBy: 'Ahmad Fauzi', timestamp: DateTime.now().subtract(const Duration(hours: 3))),
-          BookingStatusLog(status: 'Sedang Dikerjakan', updatedBy: 'Admin Bengkel', timestamp: DateTime.now().subtract(const Duration(hours: 1))),
-        ],
         createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+      ),
+      BookingModel(
+        id: '#BK-1002',
+        userId: currentUserId ?? '1',
+        userName: 'Ahmad Fauzi',
+        userPhone: '081234567890',
+        vehicleName: 'Honda HR-V 1.5 E',
+        vehiclePlat: 'B 5678 CD',
+        vehicleYear: 2021,
+        vehicleKm: 28000,
+        serviceName: 'Tune Up & Clean AC',
+        bookingDate: DateTime.now().add(const Duration(days: 3)),
+        bookingTime: '13:00 WIB',
+        estimatedCost: 380000,
+        status: 'Proses Pengecekan',
+        currentStep: 2,
+        totalSteps: 5,
+        notes: 'AC kurang dingin',
+        createdAt: DateTime.now().subtract(const Duration(days: 1)),
       ),
     ];
   }
@@ -191,7 +184,7 @@ class BookingService {
         vehiclePlat: 'B 1234 AG',
         vehicleYear: 2020,
         vehicleKm: 30000,
-        serviceName: 'Servis Rutin Berkala',
+        serviceName: 'Servis Rutin & Ganti Filter',
         bookingDate: DateTime.now().subtract(const Duration(days: 14)),
         bookingTime: '10:00 WIB',
         estimatedCost: 215000,
@@ -199,11 +192,26 @@ class BookingService {
         currentStep: 5,
         totalSteps: 5,
         notes: 'Selesai tepat waktu',
-        statusHistory: [
-          BookingStatusLog(status: 'Menunggu', updatedBy: 'Ahmad Fauzi', timestamp: DateTime.now().subtract(const Duration(days: 14))),
-          BookingStatusLog(status: 'Selesai', updatedBy: 'Admin Bengkel', timestamp: DateTime.now().subtract(const Duration(days: 14))),
-        ],
         createdAt: DateTime.now().subtract(const Duration(days: 14)),
+      ),
+      BookingModel(
+        id: '#BK-0870',
+        userId: currentUserId ?? '1',
+        userName: 'Ahmad Fauzi',
+        userPhone: '081234567890',
+        vehicleName: 'Toyota Avanza 1.3 G',
+        vehiclePlat: 'B 1234 AG',
+        vehicleYear: 2020,
+        vehicleKm: 20000,
+        serviceName: 'Ganti Ban Front Left',
+        bookingDate: DateTime.now().subtract(const Duration(days: 45)),
+        bookingTime: '14:00 WIB',
+        estimatedCost: 450000,
+        status: 'Selesai',
+        currentStep: 5,
+        totalSteps: 5,
+        notes: 'Balancing + Spooring',
+        createdAt: DateTime.now().subtract(const Duration(days: 45)),
       ),
     ];
   }

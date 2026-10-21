@@ -13,7 +13,7 @@ class BookingWaktuScreen extends StatefulWidget {
 }
 
 class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
-  String? selectedTime = '09:00';
+  String? selectedTime;
   final List<String> timeSlots = [
     '08:00',
     '09:00',
@@ -44,7 +44,7 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Pilih Jam (${widget.draft.serviceName ?? 'Servis'})'),
+          title: const Text('Pilih Waktu'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: _handleBack,

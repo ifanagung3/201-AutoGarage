@@ -115,7 +115,8 @@ class RandomForestService {
     return MlApiPredictionResult(
       estimatedCost: localRes.estimatedCost,
       estimatedDuration: (localRes.estimatedDurationMinutes / 60.0),
-      recommendation: "Disarankan melakukan pemeriksaan filter udara & pembersihan komponen berkala",
+      recommendation:
+          "Disarankan melakukan pemeriksaan filter udara & pembersihan komponen berkala",
       isFromRemoteApi: false,
     );
   }
@@ -161,12 +162,24 @@ class RandomForestService {
   List<double> _encodeFeatures(ServiceEstimationInput input) {
     double categoryIndex = 0.0;
     switch (input.category) {
-      case 'Servis Rutin': categoryIndex = 0.0; break;
-      case 'Tune Up': categoryIndex = 1.0; break;
-      case 'AC Service': categoryIndex = 2.0; break;
-      case 'Ganti Ban': categoryIndex = 3.0; break;
-      case 'Kaki-kaki': categoryIndex = 4.0; break;
-      case 'Overhaul Mesin': categoryIndex = 5.0; break;
+      case 'Servis Rutin':
+        categoryIndex = 0.0;
+        break;
+      case 'Tune Up':
+        categoryIndex = 1.0;
+        break;
+      case 'AC Service':
+        categoryIndex = 2.0;
+        break;
+      case 'Ganti Ban':
+        categoryIndex = 3.0;
+        break;
+      case 'Kaki-kaki':
+        categoryIndex = 4.0;
+        break;
+      case 'Overhaul Mesin':
+        categoryIndex = 5.0;
+        break;
     }
 
     final currentYear = DateTime.now().year;
@@ -191,19 +204,39 @@ class RandomForestService {
       predictions.add(tree.predict(features));
     }
 
-    double forestAverage = predictions.isEmpty ? 250000 : predictions.reduce((a, b) => a + b) / predictions.length;
+    double forestAverage = predictions.isEmpty
+        ? 250000
+        : predictions.reduce((a, b) => a + b) / predictions.length;
 
     double laborCost = 80000;
     double sparepartCost = 0;
     int duration = 45;
 
     switch (input.category) {
-      case 'Servis Rutin': laborCost = 75000; duration = 45; break;
-      case 'Tune Up': laborCost = 150000; duration = 90; break;
-      case 'AC Service': laborCost = 120000; duration = 60; break;
-      case 'Ganti Ban': laborCost = 50000; duration = 30; break;
-      case 'Kaki-kaki': laborCost = 250000; duration = 120; break;
-      case 'Overhaul Mesin': laborCost = 800000; duration = 300; break;
+      case 'Servis Rutin':
+        laborCost = 75000;
+        duration = 45;
+        break;
+      case 'Tune Up':
+        laborCost = 150000;
+        duration = 90;
+        break;
+      case 'AC Service':
+        laborCost = 120000;
+        duration = 60;
+        break;
+      case 'Ganti Ban':
+        laborCost = 50000;
+        duration = 30;
+        break;
+      case 'Kaki-kaki':
+        laborCost = 250000;
+        duration = 120;
+        break;
+      case 'Overhaul Mesin':
+        laborCost = 800000;
+        duration = 300;
+        break;
     }
 
     if (input.replaceEngineOil) sparepartCost += 180000;

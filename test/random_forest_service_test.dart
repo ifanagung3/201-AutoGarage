@@ -30,7 +30,9 @@ void main() {
       expect(metrics['rSquared'], greaterThan(0.85)); // R2 > 0.85
     });
 
-    test('predictViaApi fallback when server offline produces non-zero estimation', () async {
+    test(
+        'predictViaApi fallback when server offline produces non-zero estimation',
+        () async {
       final apiResult = await RandomForestService.instance.predictViaApi(
         carBrand: 'Toyota',
         carModel: 'Avanza',

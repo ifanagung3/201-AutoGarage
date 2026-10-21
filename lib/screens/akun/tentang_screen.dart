@@ -35,13 +35,21 @@ class TentangScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.directions_car, size: 100, color: Color(0xFF3B82F6)),
+              const Icon(Icons.directions_car,
+                  size: 100, color: Color(0xFF3B82F6)),
               const SizedBox(height: 24),
-              Text('201 Auto Garage', style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold)),
+              Text('201 Auto Garage',
+                  style: GoogleFonts.poppins(
+                      fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              Text('Versi 1.0.0', style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600])),
+              Text('Versi 1.0.0',
+                  style: GoogleFonts.poppins(
+                      fontSize: 16, color: Colors.grey[600])),
               const SizedBox(height: 24),
-              Text('Aplikasi booking servis kendaraan terpercaya dan mudah digunakan.', textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 14)),
+              Text(
+                  'Aplikasi booking servis kendaraan terpercaya dan mudah digunakan.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(fontSize: 14)),
             ],
           ),
         ),

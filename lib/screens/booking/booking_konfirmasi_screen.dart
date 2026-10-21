@@ -67,17 +67,14 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
   Future<void> _submitBooking() async {
     setState(() => _isLoading = true);
     try {
-      final dateToSave = widget.draft.bookingDate ?? DateTime.now().add(const Duration(days: 1));
-      final timeToSave = widget.draft.bookingTime != null ? '${widget.draft.bookingTime} WIB' : '09:00 WIB';
-
       await BookingService.instance.createBooking(
         vehicleName: 'Toyota Avanza 1.3 G',
         vehiclePlat: 'B 1234 AG',
         vehicleYear: 2018,
         vehicleKm: 75000,
-        serviceName: widget.draft.serviceName ?? 'Servis Rutin',
-        bookingDate: dateToSave,
-        bookingTime: timeToSave,
+        serviceName: widget.draft.serviceName!,
+        bookingDate: widget.draft.bookingDate!,
+        bookingTime: '${widget.draft.bookingTime} WIB',
         estimatedCost: _estimatedCost,
         notes: _notesController.text.trim(),
       );
@@ -86,7 +83,7 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Booking ${widget.draft.serviceName ?? ''} berhasil disimpan!',
+              'Booking berhasil disimpan!',
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: Colors.green,
@@ -232,7 +229,7 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                         const Divider(height: 20),
                         _DetailRow(
                             label: 'Layanan',
-                            value: widget.draft.serviceName ?? 'Servis Rutin'),
+                            value: widget.draft.serviceName ?? '-'),
                         const SizedBox(height: 10),
                         const _DetailRow(
                             label: 'Kendaraan',
@@ -244,7 +241,7 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                         _DetailRow(
                           label: 'Tanggal',
                           value: widget.draft.bookingDate == null
-                              ? 'Besok'
+                              ? '-'
                               : DateFormat('d MMMM y', 'id_ID')
                                   .format(widget.draft.bookingDate!),
                         ),
@@ -252,7 +249,7 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                         _DetailRow(
                           label: 'Waktu',
                           value: widget.draft.bookingTime == null
-                              ? '09:00 WIB'
+                              ? '-'
                               : '${widget.draft.bookingTime} WIB',
                         ),
                       ],
@@ -311,7 +308,9 @@ class _BookingKonfirmasiScreenState extends State<BookingKonfirmasiScreen> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submitBooking,
+                  onPressed: _isLoading || !widget.draft.isComplete
+                      ? null
+                      : _submitBooking,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5B8DEF),
                     shape: RoundedRectangleBorder(

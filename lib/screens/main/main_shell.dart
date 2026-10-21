@@ -36,10 +36,18 @@ class MainShell extends StatelessWidget {
           currentIndex: selectedIndex,
           onTap: (index) {
             switch (index) {
-              case 0: context.go('/home'); break;
-              case 1: context.go('/status'); break;
-              case 2: context.go('/riwayat'); break;
-              case 3: context.go('/akun'); break;
+              case 0:
+                context.go('/home');
+                break;
+              case 1:
+                context.go('/status');
+                break;
+              case 2:
+                context.go('/riwayat');
+                break;
+              case 3:
+                context.go('/akun');
+                break;
             }
           },
           type: BottomNavigationBarType.fixed,
@@ -47,8 +55,10 @@ class MainShell extends StatelessWidget {
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-            BottomNavigationBarItem(icon: Icon(Icons.build_circle), label: 'Status'),
-            BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.build_circle), label: 'Status'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.history), label: 'Riwayat'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
           ],
         ),

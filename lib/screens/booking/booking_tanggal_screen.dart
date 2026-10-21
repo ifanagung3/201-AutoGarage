@@ -12,7 +12,7 @@ class BookingTanggalScreen extends StatefulWidget {
 }
 
 class _BookingTanggalScreenState extends State<BookingTanggalScreen> {
-  DateTime? selectedDate = DateTime.now().add(const Duration(days: 1));
+  DateTime? selectedDate;
 
   void _handleBack() {
     if (context.canPop()) {
@@ -33,7 +33,7 @@ class _BookingTanggalScreenState extends State<BookingTanggalScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Pilih Tanggal (${widget.draft.serviceName ?? 'Servis'})'),
+          title: const Text('Pilih Tanggal'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: _handleBack,
@@ -43,9 +43,9 @@ class _BookingTanggalScreenState extends State<BookingTanggalScreen> {
           children: [
             Expanded(
               child: CalendarDatePicker(
-                initialDate: selectedDate ?? DateTime.now().add(const Duration(days: 1)),
+                initialDate: DateTime.now(),
                 firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 60)),
+                lastDate: DateTime.now().add(const Duration(days: 30)),
                 onDateChanged: (date) => setState(() => selectedDate = date),
               ),
             ),

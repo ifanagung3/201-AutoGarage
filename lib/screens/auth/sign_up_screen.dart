@@ -38,7 +38,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
       return;
     }
-    
+
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Password tidak sama')),
@@ -48,20 +48,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      
+
       await credential.user?.updateDisplayName(_nameController.text.trim());
-      
-      await FirebaseFirestore.instance.collection('users').doc(credential.user?.uid).set({
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(credential.user?.uid)
+          .set({
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
         'role': 'user',
         'createdAt': FieldValue.serverTimestamp(),
       });
-      
+
       if (mounted) context.go('/complete-profile');
     } on FirebaseAuthException catch (e) {
       String msg = 'Registrasi gagal';
@@ -121,7 +125,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Text(
                       'Daftar untuk melanjutkan pemesanan',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(fontSize: 14, color: authMuted),
+                      style:
+                          GoogleFonts.poppins(fontSize: 14, color: authMuted),
                     ),
                     const SizedBox(height: 32),
 
@@ -148,7 +153,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       hint: 'Password',
                       icon: Icons.lock_outline_rounded,
                       obscure: _obscurePassword,
-                      onToggleObscure: () => setState(() => _obscurePassword = !_obscurePassword),
+                      onToggleObscure: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                     const SizedBox(height: 16),
 
@@ -158,7 +164,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       hint: 'Konfirmasi Password',
                       icon: Icons.lock_outline_rounded,
                       obscure: _obscureConfirmPassword,
-                      onToggleObscure: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                      onToggleObscure: () => setState(() =>
+                          _obscureConfirmPassword = !_obscureConfirmPassword),
                     ),
                     const SizedBox(height: 28),
 
@@ -169,9 +176,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
                             )
-                          : Text('Sign Up', style: GoogleFonts.poppins(fontSize: 16)),
+                          : Text('Sign Up',
+                              style: GoogleFonts.poppins(fontSize: 16)),
                     ),
                     const SizedBox(height: 20),
 
@@ -179,7 +188,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Sudah punya akun? ', style: GoogleFonts.poppins(fontSize: 14, color: authInk)),
+                        Text('Sudah punya akun? ',
+                            style: GoogleFonts.poppins(
+                                fontSize: 14, color: authInk)),
                         GestureDetector(
                           onTap: _handleBack,
                           child: Text(
@@ -220,7 +231,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       style: GoogleFonts.poppins(fontSize: 14, color: authInk),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFFADB0BF)),
+        hintStyle:
+            GoogleFonts.poppins(fontSize: 14, color: const Color(0xFFADB0BF)),
         filled: true,
         fillColor: const Color(0xFFF0F0F6),
         prefixIcon: Icon(icon, size: 23, color: const Color(0xFFC5C7D2)),
@@ -229,15 +241,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ? IconButton(
                 onPressed: onToggleObscure,
                 icon: Icon(
-                  obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  obscure
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                   color: const Color(0xFFC5C7D2),
                   size: 23,
                 ),
               )
             : null,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide.none),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(11),
+            borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(11),
+            borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(11),
           borderSide: const BorderSide(color: Color(0xFF6678CB)),
