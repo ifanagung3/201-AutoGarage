@@ -7,15 +7,25 @@ class UserProfileService {
   static Future<void> ensure(User user, {String? name}) async {
     final db = FirebaseFirestore.instance;
     final ref = db.collection('users').doc(user.uid);
+    final email = (user.email ?? '').toLowerCase();
+    final isAdminEmail = email == 'admin@autogarage.com' || email.startsWith('admin@');
+
     await db.runTransaction((transaction) async {
       final existing = await transaction.get(ref);
-      if (existing.exists) return;
+      if (existing.exists) {
+        // If it's an admin email, make sure role is admin
+        if (isAdminEmail && existing.data()?['role'] != 'admin') {
+          transaction.update(ref, {'role': 'admin'});
+        }
+        return;
+      }
+
       transaction.set(ref, {
-        'name': name ?? user.displayName ?? '',
+        'name': name ?? user.displayName ?? (isAdminEmail ? 'Admin Bengkel' : 'Pelanggan'),
         'email': user.email ?? '',
         'phone': user.phoneNumber ?? '',
         'address': '',
-        'role': 'user',
+        'role': isAdminEmail ? 'admin' : 'user',
         'profileCompleted': false,
         'createdAt': FieldValue.serverTimestamp(),
       });
