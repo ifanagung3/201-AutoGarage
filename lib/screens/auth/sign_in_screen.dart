@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/admin_access_service.dart';
 import 'auth_visuals.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -19,9 +20,21 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
+  void _enterAdminModeDirectly() {
+    AdminAccessService.instance.bypassActive = true;
+    if (mounted) context.go('/admin');
+  }
+
   Future<void> _signInWithEmail() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+
+    // Quick Admin Bypass check
+    if (email.toLowerCase() == 'admin@autogarage.com' || email.toLowerCase().startsWith('admin@')) {
+      AdminAccessService.instance.bypassActive = true;
+      if (mounted) context.go('/admin');
+      return;
+    }
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -39,7 +52,6 @@ class _SignInScreenState extends State<SignInScreen> {
           password: password,
         );
       } on FirebaseAuthException catch (e) {
-        // Auto-provision admin account if it doesn't exist yet in Firebase
         if (e.code == 'user-not-found' && email.toLowerCase().startsWith('admin@')) {
           userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: email,
@@ -75,8 +87,10 @@ class _SignInScreenState extends State<SignInScreen> {
 
         if (mounted) {
           if (isAdmin) {
+            AdminAccessService.instance.bypassActive = true;
             context.go('/admin');
           } else {
+            AdminAccessService.instance.bypassActive = false;
             context.go('/home');
           }
         }
@@ -129,8 +143,10 @@ class _SignInScreenState extends State<SignInScreen> {
 
         if (mounted) {
           if (isAdmin) {
+            AdminAccessService.instance.bypassActive = true;
             context.go('/admin');
           } else {
+            AdminAccessService.instance.bypassActive = false;
             context.go('/home');
           }
         }
@@ -230,7 +246,28 @@ class _SignInScreenState extends State<SignInScreen> {
                             : Text('Sign In',
                                 style: GoogleFonts.poppins(fontSize: 16)),
                       ),
+                      const SizedBox(height: 14),
+
+                      // Dedicated Quick Admin Entry Button
+                      OutlinedButton.icon(
+                        onPressed: _enterAdminModeDirectly,
+                        icon: const Icon(Icons.admin_panel_settings, color: Color(0xFFEA580C)),
+                        label: Text(
+                          'Masuk Mode Admin Bengkel 🛠️',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFEA580C),
+                            fontSize: 14,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFEA580C), width: 1.5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                      ),
                       const SizedBox(height: 16),
+
                       Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
