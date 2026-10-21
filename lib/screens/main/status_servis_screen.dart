@@ -59,7 +59,7 @@ class StatusServisScreen extends StatelessWidget {
                     'Pantau progres pengerjaan kendaraan secara real-time',
                     style: GoogleFonts.poppins(
                       fontSize: 13,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
                 ],
@@ -106,6 +106,9 @@ class StatusServisScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final booking = bookings[index];
                       final statusColor = _getStatusColor(booking.status);
+                      final displayId = booking.id.length > 10
+                          ? '#${booking.id.substring(0, 8)}...'
+                          : booking.id;
 
                       return Container(
                         padding: const EdgeInsets.all(20),
@@ -114,7 +117,7 @@ class StatusServisScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
@@ -126,24 +129,28 @@ class StatusServisScreen extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  booking.id,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF1E293B),
+                                Expanded(
+                                  child: Text(
+                                    displayId,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF1E293B),
+                                    ),
                                   ),
                                 ),
+                                const SizedBox(width: 8),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                   decoration: BoxDecoration(
-                                    color: statusColor.withOpacity(0.1),
+                                    color: statusColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
                                     booking.status,
                                     style: GoogleFonts.poppins(
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w600,
                                       color: statusColor,
                                     ),
