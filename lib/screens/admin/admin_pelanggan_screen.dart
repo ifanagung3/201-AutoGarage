@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/user_model.dart';
 
 class AdminPelangganScreen extends StatefulWidget {
-  const AdminPelangganScreen({super.key});
+  const AdminPelangganScreen({super.key, this.usersStream});
+
+  final Stream<List<UserModel>>? usersStream;
 
   @override
   State<AdminPelangganScreen> createState() => _AdminPelangganScreenState();
@@ -14,21 +16,21 @@ class _AdminPelangganScreenState extends State<AdminPelangganScreen> {
   final _searchController = TextEditingController();
   String _query = '';
 
-  Stream<List<UserModel>> _streamUsers() {
-    return FirebaseFirestore.instance.collection('users').snapshots().map((snapshot) {
-      if (snapshot.docs.isEmpty) {
-        return _getMockUsers();
-      }
-      return snapshot.docs.map((doc) => UserModel.fromFirestore(doc.data(), doc.id)).toList();
-    }).handleError((_) => _getMockUsers());
+  late Stream<List<UserModel>> _users;
+
+  @override
+  void initState() {
+    super.initState();
+    _users = _streamUsers();
   }
 
-  List<UserModel> _getMockUsers() {
-    return [
-      UserModel(uid: '1', name: 'Ahmad Fauzi', email: 'ahmad@email.com', phone: '081234567890', role: 'user', createdAt: DateTime.now()),
-      UserModel(uid: '2', name: 'Budi Santoso', email: 'budi@email.com', phone: '081298765432', role: 'user', createdAt: DateTime.now()),
-      UserModel(uid: '3', name: 'Admin Bengkel', email: 'admin@autogarage.com', phone: '081355554444', role: 'admin', createdAt: DateTime.now()),
-    ];
+  Stream<List<UserModel>> _streamUsers() {
+    return widget.usersStream ??
+        FirebaseFirestore.instance.collection('users').snapshots().map(
+          (snapshot) => snapshot.docs
+              .map((doc) => UserModel.fromFirestore(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   void _confirmToggleRole(BuildContext context, UserModel user) {
@@ -109,8 +111,34 @@ class _AdminPelangganScreenState extends State<AdminPelangganScreen> {
           ),
           Expanded(
             child: StreamBuilder<List<UserModel>>(
-              stream: _streamUsers(),
+              stream: _users,
               builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  final error = snapshot.error;
+                  final denied = error is FirebaseException &&
+                      error.code == 'permission-denied';
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            denied
+                                ? 'Akses daftar pelanggan ditolak. Periksa role admin dan Firestore Rules.'
+                                : 'Gagal menyinkronkan pelanggan. Periksa koneksi dan coba lagi.',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          TextButton(
+                            onPressed: () => setState(() => _users = _streamUsers()),
+                            child: const Text('Coba lagi'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator(color: Color(0xFFEA580C)));
                 }
@@ -125,7 +153,7 @@ class _AdminPelangganScreenState extends State<AdminPelangganScreen> {
 
                 if (filtered.isEmpty) {
                   return Center(
-                    child: Text('Pelanggan tidak ditemukan', style: GoogleFonts.poppins(color: Colors.grey)),
+                    child: Text(users.isEmpty ? 'Belum ada pelanggan terdaftar di database' : 'Pelanggan tidak ditemukan', style: GoogleFonts.poppins(color: Colors.grey)),
                   );
                 }
 

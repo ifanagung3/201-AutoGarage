@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/user_model.dart';
+import 'user_profile_service.dart';
 
 class AuthService {
   static final AuthService instance = AuthService._internal();
@@ -15,10 +15,12 @@ class AuthService {
 
   /// Sign In with Email & Password
   Future<UserCredential> signInWithEmail(String email, String password) async {
-    return await _auth.signInWithEmailAndPassword(
+    final credential = await _auth.signInWithEmailAndPassword(
       email: email.trim(),
-      password: password.trim(),
+      password: password,
     );
+    await UserProfileService.ensure(credential.user!);
+    return credential;
   }
 
   /// Sign Up with Email & Password
@@ -29,19 +31,12 @@ class AuthService {
   }) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email.trim(),
-      password: password.trim(),
+      password: password,
     );
 
     await credential.user?.updateDisplayName(name.trim());
 
-    final newUser = UserModel(
-      uid: credential.user!.uid,
-      name: name.trim(),
-      email: email.trim(),
-      createdAt: DateTime.now(),
-    );
-
-    await _db.collection('users').doc(credential.user!.uid).set(newUser.toFirestore());
+    await UserProfileService.ensure(credential.user!, name: name.trim());
 
     return credential;
   }
@@ -60,17 +55,7 @@ class AuthService {
     final userCredential = await _auth.signInWithCredential(credential);
 
     if (userCredential.user != null) {
-      final docRef = _db.collection('users').doc(userCredential.user!.uid);
-      final doc = await docRef.get();
-      if (!doc.exists) {
-        final newUser = UserModel(
-          uid: userCredential.user!.uid,
-          name: userCredential.user!.displayName ?? 'Google User',
-          email: userCredential.user!.email ?? '',
-          createdAt: DateTime.now(),
-        );
-        await docRef.set(newUser.toFirestore());
-      }
+      await UserProfileService.ensure(userCredential.user!);
     }
 
     return userCredential;

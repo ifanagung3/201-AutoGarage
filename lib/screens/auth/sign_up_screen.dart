@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/auth_service.dart';
 import 'auth_visuals.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -48,23 +48,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await AuthService.instance.signUpWithEmail(
+        name: _nameController.text.trim(),
         email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        password: _passwordController.text,
       );
-
-      await credential.user?.updateDisplayName(_nameController.text.trim());
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(credential.user?.uid)
-          .set({
-        'name': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'role': 'user',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
 
       if (mounted) context.go('/complete-profile');
     } on FirebaseAuthException catch (e) {
@@ -74,6 +62,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg), backgroundColor: Colors.red),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(
+            'Profil belum tersinkron. Jika akun sudah dibuat, masuk kembali untuk mencoba sinkronisasi. Periksa koneksi internet.',
+          )),
         );
       }
     } finally {

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/auth_service.dart';
 import '../../services/admin_access_service.dart';
 import 'auth_visuals.dart';
 
@@ -33,56 +32,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
     setState(() => _isLoading = true);
     try {
-      UserCredential userCredential;
-      try {
-        userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found' && email.toLowerCase().startsWith('admin@')) {
-          userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: email,
-            password: password.length >= 6 ? password : 'admin123',
-          );
-          if (userCredential.user != null) {
-            await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-              'uid': userCredential.user!.uid,
-              'name': 'Admin Bengkel',
-              'email': email,
-              'role': 'admin',
-              'createdAt': FieldValue.serverTimestamp(),
-            });
-          }
-        } else {
-          rethrow;
-        }
-      }
-
-      final user = userCredential.user;
-      if (user != null && mounted) {
-        bool isAdmin = false;
-
-        if (email.toLowerCase().startsWith('admin@') || user.email == 'admin@autogarage.com') {
-          isAdmin = true;
-        } else {
-          try {
-            final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-            final role = doc.data()?['role'];
-            if (role == 'admin') isAdmin = true;
-          } catch (_) {}
-        }
-
-        if (mounted) {
-          if (isAdmin) {
-            AdminAccessService.instance.bypassActive = true;
-            context.go('/admin');
-          } else {
-            AdminAccessService.instance.bypassActive = false;
-            context.go('/home');
-          }
-        }
-      }
+      await AuthService.instance.signInWithEmail(email, password);
+      await _routeAfterLogin();
     } on FirebaseAuthException catch (e) {
       String msg = 'Login gagal: ${e.message}';
       if (e.code == 'user-not-found' || e.code == 'invalid-credential') msg = 'Akun belum terdaftar atau password salah';
@@ -106,39 +57,8 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        return;
-      }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-
-      final user = userCredential.user;
-      if (user != null && mounted) {
-        bool isAdmin = false;
-        if (user.email != null && user.email!.toLowerCase().startsWith('admin@')) {
-          isAdmin = true;
-        } else {
-          try {
-            final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-            if (doc.data()?['role'] == 'admin') isAdmin = true;
-          } catch (_) {}
-        }
-
-        if (mounted) {
-          if (isAdmin) {
-            AdminAccessService.instance.bypassActive = true;
-            context.go('/admin');
-          } else {
-            AdminAccessService.instance.bypassActive = false;
-            context.go('/home');
-          }
-        }
-      }
+      final credential = await AuthService.instance.signInWithGoogle();
+      if (credential != null) await _routeAfterLogin();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -151,6 +71,11 @@ class _SignInScreenState extends State<SignInScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _routeAfterLogin() async {
+    final isAdmin = await AdminAccessService.instance.isCurrentUserAdmin();
+    if (mounted) context.go(isAdmin ? '/admin' : '/home');
   }
 
   @override
