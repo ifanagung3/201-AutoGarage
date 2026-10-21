@@ -11,7 +11,7 @@ class BookingService {
 
   String? get currentUserId => _auth.currentUser?.uid;
 
-  /// Submit New Booking
+  /// Submit New Booking with Initial Status Log
   Future<String> createBooking({
     required String vehicleName,
     required String vehiclePlat,
@@ -29,6 +29,12 @@ class BookingService {
     final phone = user?.phoneNumber ?? '-';
 
     final docRef = _db.collection('bookings').doc();
+    final initialLog = BookingStatusLog(
+      status: 'Menunggu',
+      updatedBy: name,
+      timestamp: DateTime.now(),
+    );
+
     final newBooking = BookingModel(
       id: docRef.id,
       userId: uid,
@@ -46,6 +52,7 @@ class BookingService {
       currentStep: 1,
       totalSteps: 5,
       notes: notes,
+      statusHistory: [initialLog],
       createdAt: DateTime.now(),
     );
 
@@ -53,7 +60,6 @@ class BookingService {
       await docRef.set(newBooking.toFirestore());
       return docRef.id;
     } catch (e) {
-      // Local fallback ID if firestore fails
       return 'local_${DateTime.now().millisecondsSinceEpoch}';
     }
   }
@@ -120,17 +126,32 @@ class BookingService {
         .handleError((_) => [..._getMockActiveBookings(), ..._getMockHistoryBookings()]);
   }
 
-  /// Admin: Update Booking Status and Step
-  Future<void> updateBookingStatus(String bookingId, String newStatus, int step) async {
+  /// Admin: Update Booking Status with Audit Log
+  Future<void> updateBookingStatus(String bookingId, String newStatus, int step, {String updatedBy = 'Admin'}) async {
     try {
-      await _db.collection('bookings').doc(bookingId).update({
+      final docRef = _db.collection('bookings').doc(bookingId);
+      final newLog = {
+        'status': newStatus,
+        'updatedBy': updatedBy,
+        'timestamp': Timestamp.fromDate(DateTime.now()),
+      };
+
+      await docRef.update({
         'status': newStatus,
         'currentStep': step,
+        'statusHistory': FieldValue.arrayUnion([newLog]),
       });
     } catch (_) {}
   }
 
-  // Mock Fallbacks so app UI is never empty
+  /// Admin: Delete Booking with Confirmation
+  Future<void> deleteBooking(String bookingId) async {
+    try {
+      await _db.collection('bookings').doc(bookingId).delete();
+    } catch (_) {}
+  }
+
+  // Fallbacks so app UI is never empty
   List<BookingModel> _getMockActiveBookings() {
     return [
       BookingModel(
@@ -150,26 +171,11 @@ class BookingService {
         currentStep: 3,
         totalSteps: 5,
         notes: 'Ganti oli mesin & cek rem',
+        statusHistory: [
+          BookingStatusLog(status: 'Menunggu', updatedBy: 'Ahmad Fauzi', timestamp: DateTime.now().subtract(const Duration(hours: 3))),
+          BookingStatusLog(status: 'Sedang Dikerjakan', updatedBy: 'Admin Bengkel', timestamp: DateTime.now().subtract(const Duration(hours: 1))),
+        ],
         createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      ),
-      BookingModel(
-        id: '#BK-1002',
-        userId: currentUserId ?? '1',
-        userName: 'Ahmad Fauzi',
-        userPhone: '081234567890',
-        vehicleName: 'Honda HR-V 1.5 E',
-        vehiclePlat: 'B 5678 CD',
-        vehicleYear: 2021,
-        vehicleKm: 28000,
-        serviceName: 'Tune Up & Clean AC',
-        bookingDate: DateTime.now().add(const Duration(days: 3)),
-        bookingTime: '13:00 WIB',
-        estimatedCost: 380000,
-        status: 'Proses Pengecekan',
-        currentStep: 2,
-        totalSteps: 5,
-        notes: 'AC kurang dingin',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
       ),
     ];
   }
@@ -185,7 +191,7 @@ class BookingService {
         vehiclePlat: 'B 1234 AG',
         vehicleYear: 2020,
         vehicleKm: 30000,
-        serviceName: 'Servis Rutin & Ganti Filter',
+        serviceName: 'Servis Rutin Berkala',
         bookingDate: DateTime.now().subtract(const Duration(days: 14)),
         bookingTime: '10:00 WIB',
         estimatedCost: 215000,
@@ -193,26 +199,11 @@ class BookingService {
         currentStep: 5,
         totalSteps: 5,
         notes: 'Selesai tepat waktu',
+        statusHistory: [
+          BookingStatusLog(status: 'Menunggu', updatedBy: 'Ahmad Fauzi', timestamp: DateTime.now().subtract(const Duration(days: 14))),
+          BookingStatusLog(status: 'Selesai', updatedBy: 'Admin Bengkel', timestamp: DateTime.now().subtract(const Duration(days: 14))),
+        ],
         createdAt: DateTime.now().subtract(const Duration(days: 14)),
-      ),
-      BookingModel(
-        id: '#BK-0870',
-        userId: currentUserId ?? '1',
-        userName: 'Ahmad Fauzi',
-        userPhone: '081234567890',
-        vehicleName: 'Toyota Avanza 1.3 G',
-        vehiclePlat: 'B 1234 AG',
-        vehicleYear: 2020,
-        vehicleKm: 20000,
-        serviceName: 'Ganti Ban Front Left',
-        bookingDate: DateTime.now().subtract(const Duration(days: 45)),
-        bookingTime: '14:00 WIB',
-        estimatedCost: 450000,
-        status: 'Selesai',
-        currentStep: 5,
-        totalSteps: 5,
-        notes: 'Balancing + Spooring',
-        createdAt: DateTime.now().subtract(const Duration(days: 45)),
       ),
     ];
   }
