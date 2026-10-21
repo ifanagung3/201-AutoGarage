@@ -165,12 +165,12 @@ class _AdminPelangganScreenState extends State<AdminPelangganScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: isAdmin ? Colors.purple.withOpacity(0.2) : Colors.blue.withOpacity(0.2),
+                                        color: isAdmin ? Colors.purple.withValues(alpha: 0.2) : Colors.blue.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         u.role.toUpperCase(),
-                                        style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.bold, color: isAdmin ? Colors.purpleLight : Colors.lightBlueAccent),
+                                        style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.bold, color: isAdmin ? Colors.purpleAccent : Colors.lightBlueAccent),
                                       ),
                                     ),
                                   ],
