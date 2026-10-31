@@ -64,10 +64,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
           SnackBar(content: Text(msg), backgroundColor: Colors.red),
         );
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
+      debugPrint('Sign-up profile synchronization failed: $error\n$stackTrace');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(
+          const SnackBar(
+              content: Text(
             'Profil belum tersinkron. Jika akun sudah dibuat, masuk kembali untuk mencoba sinkronisasi. Periksa koneksi internet.',
           )),
         );
@@ -87,9 +89,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF0B0E13),
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xFF0B0E13),
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: authInk),
@@ -194,7 +196,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF6475D5),
+                              color: const Color(0xFFFF3B45),
                             ),
                           ),
                         ),

@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import '../models/service_estimation_model.dart';
+import 'cache_service.dart';
 
 class MlApiPredictionResult {
   final double estimatedCost;
@@ -52,8 +54,11 @@ class RandomForestService {
     _initEnsembleTrees();
   }
 
-  // Base API URL (10.0.2.2 for Android Emulator, localhost for Web/Desktop)
-  String apiUrl = 'http://10.0.2.2:5000/predict';
+  // Override for a physical device with --dart-define=ML_API_URL=<server URL>.
+  String apiUrl = const String.fromEnvironment(
+    'ML_API_URL',
+    defaultValue: 'http://10.0.2.2:5000/predict',
+  );
 
   final List<_DecisionTreeNode> _trees = [];
   final int numTrees = 15;
@@ -76,29 +81,76 @@ class RandomForestService {
       "component_count": componentCount,
     };
 
-    try {
-      final response = await http
-          .post(
-            Uri.parse(apiUrl),
-            headers: {"Content-Type": "application/json"},
-            body: jsonEncode(payload),
-          )
-          .timeout(const Duration(seconds: 3));
+    // Check cache first
+    final cacheKey = CacheService.generateKey('ml_prediction', payload);
+    final cachedResult =
+        CacheService.instance.get<MlApiPredictionResult>(cacheKey);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return MlApiPredictionResult(
-          estimatedCost: (data['estimated_cost'] as num).toDouble(),
-          estimatedDuration: (data['estimated_duration'] as num).toDouble(),
-          recommendation: data['recommendation'] ?? "Pemeriksaan berkala rutin",
-          isFromRemoteApi: true,
-        );
-      }
-    } catch (_) {
-      // Fallback to internal engine if REST API is unreachable
+    if (cachedResult != null) {
+      developer.log('Using cached prediction', name: 'RandomForestService');
+      return cachedResult;
     }
 
-    // Local Fallback Prediction
+    // Retry mechanism with fast timeout for quick responsiveness
+    const maxRetries = 1;
+    const baseTimeout = Duration(milliseconds: 1500);
+
+    for (int attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        developer.log(
+          'ML API Call attempt ${attempt + 1}/${maxRetries + 1}',
+          name: 'RandomForestService',
+        );
+
+        final response = await http
+            .post(
+              Uri.parse(apiUrl),
+              headers: {"Content-Type": "application/json"},
+              body: jsonEncode(payload),
+            )
+            .timeout(baseTimeout * (attempt + 1));
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          developer.log(
+            'ML API Success: cost=${data["estimated_cost"]}',
+            name: 'RandomForestService',
+          );
+
+          final result = MlApiPredictionResult(
+            estimatedCost: (data['estimated_cost'] as num).toDouble(),
+            estimatedDuration: (data['estimated_duration'] as num).toDouble(),
+            recommendation:
+                data['recommendation'] ?? "Pemeriksaan berkala rutin",
+            isFromRemoteApi: true,
+          );
+
+          CacheService.instance
+              .set(cacheKey, result, ttl: const Duration(minutes: 10));
+          return result;
+        } else {
+          developer.log(
+            'ML API Error: status=${response.statusCode}',
+            name: 'RandomForestService',
+          );
+        }
+      } catch (e) {
+        developer.log(
+          'ML API attempt ${attempt + 1} failed: $e',
+          name: 'RandomForestService',
+        );
+        if (attempt < maxRetries) {
+          await Future.delayed(Duration(milliseconds: 500 * (attempt + 1)));
+        }
+      }
+    }
+
+    // Fallback to local engine after all retries failed
+    developer.log(
+      'ML API unavailable, using local fallback',
+      name: 'RandomForestService',
+    );
+
     final fallbackInput = ServiceEstimationInput(
       category: serviceType,
       vehicleType: 'MPV',
@@ -112,18 +164,28 @@ class RandomForestService {
 
     final localRes = predictCost(fallbackInput);
 
-    return MlApiPredictionResult(
+    final fallbackResult = MlApiPredictionResult(
       estimatedCost: localRes.estimatedCost,
       estimatedDuration: (localRes.estimatedDurationMinutes / 60.0),
       recommendation:
           "Disarankan melakukan pemeriksaan filter udara & pembersihan komponen berkala",
       isFromRemoteApi: false,
     );
+
+    CacheService.instance
+        .set(cacheKey, fallbackResult, ttl: const Duration(minutes: 2));
+    return fallbackResult;
   }
 
+  // ---------------------------------------------------------------------------
+  // Local Random Forest fallback — 15 decision trees
+  // Features: [categoryIndex, vehicleTypeIndex, ageYears, kilometer,
+  //            replaceEngineOil, replaceFilter, replaceBrakePad, replaceSparkPlugs]
+  // ---------------------------------------------------------------------------
   void _initEnsembleTrees() {
     _trees.clear();
 
+    // Tree 1 — category split
     _trees.add(_DecisionTreeNode(
       featureIndex: 0,
       threshold: 1.5,
@@ -141,6 +203,7 @@ class RandomForestService {
       ),
     ));
 
+    // Tree 2 — mileage split
     _trees.add(_DecisionTreeNode(
       featureIndex: 3,
       threshold: 50000,
@@ -157,6 +220,235 @@ class RandomForestService {
         right: _DecisionTreeLeaf(420000),
       ),
     ));
+
+    // Tree 3 — category + age
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 0,
+      threshold: 2.5,
+      left: _DecisionTreeNode(
+        featureIndex: 2,
+        threshold: 4,
+        left: _DecisionTreeLeaf(160000),
+        right: _DecisionTreeLeaf(240000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 3,
+        threshold: 80000,
+        left: _DecisionTreeLeaf(400000),
+        right: _DecisionTreeLeaf(620000),
+      ),
+    ));
+
+    // Tree 4 — sparepart flags
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 4,
+      threshold: 0.5,
+      left: _DecisionTreeNode(
+        featureIndex: 0,
+        threshold: 1.5,
+        left: _DecisionTreeLeaf(130000),
+        right: _DecisionTreeLeaf(300000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 5,
+        threshold: 0.5,
+        left: _DecisionTreeLeaf(310000),
+        right: _DecisionTreeLeaf(480000),
+      ),
+    ));
+
+    // Tree 5 — brake pad flag
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 6,
+      threshold: 0.5,
+      left: _DecisionTreeNode(
+        featureIndex: 0,
+        threshold: 3.5,
+        left: _DecisionTreeLeaf(200000),
+        right: _DecisionTreeLeaf(500000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 3,
+        threshold: 60000,
+        left: _DecisionTreeLeaf(370000),
+        right: _DecisionTreeLeaf(550000),
+      ),
+    ));
+
+    // Tree 6 — age-heavy
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 2,
+      threshold: 7,
+      left: _DecisionTreeNode(
+        featureIndex: 0,
+        threshold: 1.5,
+        left: _DecisionTreeLeaf(145000),
+        right: _DecisionTreeLeaf(270000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 0,
+        threshold: 4.5,
+        left: _DecisionTreeLeaf(360000),
+        right: _DecisionTreeLeaf(700000),
+      ),
+    ));
+
+    // Tree 7 — km-heavy
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 3,
+      threshold: 30000,
+      left: _DecisionTreeLeaf(155000),
+      right: _DecisionTreeNode(
+        featureIndex: 3,
+        threshold: 100000,
+        left: _DecisionTreeLeaf(290000),
+        right: _DecisionTreeLeaf(530000),
+      ),
+    ));
+
+    // Tree 8 — category + km
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 0,
+      threshold: 0.5,
+      left: _DecisionTreeNode(
+        featureIndex: 3,
+        threshold: 40000,
+        left: _DecisionTreeLeaf(135000),
+        right: _DecisionTreeLeaf(175000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 0,
+        threshold: 4.5,
+        left: _DecisionTreeLeaf(320000),
+        right: _DecisionTreeLeaf(650000),
+      ),
+    ));
+
+    // Tree 9 — mixed flags
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 7,
+      threshold: 0.5,
+      left: _DecisionTreeNode(
+        featureIndex: 4,
+        threshold: 0.5,
+        left: _DecisionTreeLeaf(170000),
+        right: _DecisionTreeLeaf(340000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 6,
+        threshold: 0.5,
+        left: _DecisionTreeLeaf(380000),
+        right: _DecisionTreeLeaf(520000),
+      ),
+    ));
+
+    // Tree 10 — category + flags
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 0,
+      threshold: 3.5,
+      left: _DecisionTreeNode(
+        featureIndex: 4,
+        threshold: 0.5,
+        left: _DecisionTreeLeaf(160000),
+        right: _DecisionTreeLeaf(310000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 5,
+        threshold: 0.5,
+        left: _DecisionTreeLeaf(490000),
+        right: _DecisionTreeLeaf(680000),
+      ),
+    ));
+
+    // Tree 11 — age + flags
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 2,
+      threshold: 10,
+      left: _DecisionTreeNode(
+        featureIndex: 6,
+        threshold: 0.5,
+        left: _DecisionTreeLeaf(195000),
+        right: _DecisionTreeLeaf(395000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 0,
+        threshold: 2.5,
+        left: _DecisionTreeLeaf(310000),
+        right: _DecisionTreeLeaf(720000),
+      ),
+    ));
+
+    // Tree 12 — high-km heavy
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 3,
+      threshold: 70000,
+      left: _DecisionTreeNode(
+        featureIndex: 2,
+        threshold: 6,
+        left: _DecisionTreeLeaf(165000),
+        right: _DecisionTreeLeaf(255000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 0,
+        threshold: 2.5,
+        left: _DecisionTreeLeaf(330000),
+        right: _DecisionTreeLeaf(610000),
+      ),
+    ));
+
+    // Tree 13 — simple category
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 0,
+      threshold: 4.5,
+      left: _DecisionTreeNode(
+        featureIndex: 0,
+        threshold: 1.5,
+        left: _DecisionTreeLeaf(155000),
+        right: _DecisionTreeLeaf(295000),
+      ),
+      right: _DecisionTreeLeaf(780000),
+    ));
+
+    // Tree 14 — km + age
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 3,
+      threshold: 55000,
+      left: _DecisionTreeNode(
+        featureIndex: 2,
+        threshold: 3,
+        left: _DecisionTreeLeaf(140000),
+        right: _DecisionTreeLeaf(210000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 2,
+        threshold: 9,
+        left: _DecisionTreeLeaf(350000),
+        right: _DecisionTreeLeaf(570000),
+      ),
+    ));
+
+    // Tree 15 — all-flags aggregate
+    _trees.add(_DecisionTreeNode(
+      featureIndex: 4,
+      threshold: 0.5,
+      left: _DecisionTreeNode(
+        featureIndex: 7,
+        threshold: 0.5,
+        left: _DecisionTreeLeaf(148000),
+        right: _DecisionTreeLeaf(268000),
+      ),
+      right: _DecisionTreeNode(
+        featureIndex: 6,
+        threshold: 0.5,
+        left: _DecisionTreeLeaf(320000),
+        right: _DecisionTreeLeaf(490000),
+      ),
+    ));
+
+    assert(
+      _trees.length == numTrees,
+      'Expected $numTrees trees, got ${_trees.length}',
+    );
   }
 
   List<double> _encodeFeatures(ServiceEstimationInput input) {

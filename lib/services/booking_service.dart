@@ -1,16 +1,39 @@
+﻿import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/booking_model.dart';
+import 'garage_diagnostics.dart';
 
 class BookingService {
   static final BookingService instance = BookingService._internal();
-  BookingService._internal();
+  BookingService._internal()
+      : _firestore = null,
+        _firebaseAuth = null;
 
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  BookingService.withDependencies({
+    required FirebaseFirestore firestore,
+    required FirebaseAuth auth,
+  })  : _firestore = firestore,
+        _firebaseAuth = auth;
+
+  final FirebaseFirestore? _firestore;
+  final FirebaseAuth? _firebaseAuth;
+
+  FirebaseFirestore get _db => _firestore ?? FirebaseFirestore.instance;
+  FirebaseAuth get _auth => _firebaseAuth ?? FirebaseAuth.instance;
 
   String? get currentUserId => _auth.currentUser?.uid;
+
+  /// Fetch user phone from Firestore profile (fallback to FirebaseAuth phone).
+  Future<String> _getUserPhone(String uid) async {
+    try {
+      final doc = await _db.collection('users').doc(uid).get();
+      final phone = doc.data()?['phone'] as String?;
+      if (phone != null && phone.trim().isNotEmpty) return phone.trim();
+    } catch (_) {}
+    return _auth.currentUser?.phoneNumber ?? '-';
+  }
 
   /// Submit New Booking
   Future<String> createBooking({
@@ -19,15 +42,20 @@ class BookingService {
     required int vehicleYear,
     required int vehicleKm,
     required String serviceName,
+    String? serviceOption,
     required DateTime bookingDate,
     required String bookingTime,
     required double estimatedCost,
     String? notes,
   }) async {
     final user = _auth.currentUser;
-    final uid = user?.uid ?? 'guest_user';
-    final name = user?.displayName ?? 'Pelanggan';
-    final phone = user?.phoneNumber ?? '-';
+    if (user == null) {
+      throw StateError('Pengguna harus masuk sebelum membuat booking.');
+    }
+    final uid = user.uid;
+    final name = user.displayName ?? 'Pelanggan';
+    // Fetch phone from Firestore so it is always up-to-date.
+    final phone = await _getUserPhone(uid);
 
     final docRef = _db.collection('bookings').doc();
     final newBooking = BookingModel(
@@ -40,6 +68,7 @@ class BookingService {
       vehicleYear: vehicleYear,
       vehicleKm: vehicleKm,
       serviceName: serviceName,
+      serviceOption: serviceOption,
       bookingDate: bookingDate,
       bookingTime: bookingTime,
       estimatedCost: estimatedCost,
@@ -56,66 +85,157 @@ class BookingService {
 
   /// Get Stream of Active Bookings for User
   Stream<List<BookingModel>> streamActiveBookings() {
-    final uid = currentUserId;
-    if (uid == null) {
-      return Stream.value(_getMockActiveBookings());
-    }
-
-    return _db
-        .collection('bookings')
-        .where('userId', isEqualTo: uid)
-        .where(
-          'status',
-          whereIn: [
-            'Menunggu',
-            'Proses Pengecekan',
-            'Sedang Dikerjakan',
-            'Quality Check',
-          ],
-        )
-        .snapshots()
-        .map((snapshot) {
-          if (snapshot.docs.isEmpty) {
-            return _getMockActiveBookings();
-          }
-          return snapshot.docs
-              .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
-              .toList();
-        })
-        .handleError((_) => _getMockActiveBookings());
+    const activeStatuses = [
+      'Menunggu',
+      'Proses Pengecekan',
+      'Sedang Dikerjakan',
+      'Quality Check',
+    ];
+    return _streamCustomerBookings('active', activeStatuses);
   }
 
   /// Get Stream of Completed Booking History for User
   Stream<List<BookingModel>> streamBookingHistory() {
-    final uid = currentUserId;
-    if (uid == null) {
-      return Stream.value(_getMockHistoryBookings());
-    }
-
-    return _db
-        .collection('bookings')
-        .where('userId', isEqualTo: uid)
-        .where('status', whereIn: ['Selesai', 'Dibatalkan'])
-        .snapshots()
-        .map((snapshot) {
-          if (snapshot.docs.isEmpty) {
-            return _getMockHistoryBookings();
-          }
-          return snapshot.docs
-              .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
-              .toList();
-        })
-        .handleError((_) => _getMockHistoryBookings());
+    const historyStatuses = ['Selesai', 'Dibatalkan'];
+    return _streamCustomerBookings('history', historyStatuses);
   }
 
-  /// Admin: Update Booking Status and Step
-  Stream<List<BookingModel>> streamAllBookings() {
-    return _db.collection('bookings').snapshots().map((snapshot) {
+  Stream<List<BookingModel>> _streamCustomerBookings(
+    String screen,
+    List<String> statuses,
+  ) async* {
+    final uid = currentUserId;
+    final watch = Stopwatch()..start();
+    GarageDiagnostics.log('bookings.subscribe', {
+      'screen': screen,
+      'signedIn': uid != null,
+    });
+    if (uid == null) {
+      GarageDiagnostics.log('bookings.noSession', {'screen': screen});
+      yield [];
+      return;
+    }
+    var received = false;
+    final timer = GarageDiagnostics.enabled
+        ? Timer(const Duration(seconds: 10), () {
+            if (!received) {
+              GarageDiagnostics.log('bookings.waiting',
+                  {'screen': screen, 'elapsedMs': watch.elapsedMilliseconds});
+            }
+          })
+        : null;
+    try {
+      await for (final snapshot in _db
+          .collection('bookings')
+          .where('userId', isEqualTo: uid)
+          .snapshots(includeMetadataChanges: GarageDiagnostics.enabled)) {
+        received = true;
+        timer?.cancel();
+        final all = <BookingModel>[];
+        for (final doc in snapshot.docs) {
+          try {
+            all.add(BookingModel.fromFirestore(doc.data(), doc.id));
+          } catch (error) {
+            GarageDiagnostics.log('bookings.parseError', {
+              'screen': screen,
+              'type': error.runtimeType.toString(),
+              'fieldTypes': {
+                for (final field in [
+                  'status',
+                  'bookingDate',
+                  'createdAt',
+                  'estimatedCost',
+                  'vehicleYear',
+                  'vehicleKm',
+                  'currentStep'
+                ])
+                  field: doc.data()[field]?.runtimeType.toString() ?? 'null',
+              },
+            });
+            rethrow;
+          }
+        }
+        final list = all.where((b) => statuses.contains(b.status)).toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        GarageDiagnostics.log('bookings.snapshot', {
+          'screen': screen,
+          'elapsedMs': watch.elapsedMilliseconds,
+          'fromCache': snapshot.metadata.isFromCache,
+          'pendingWrites': snapshot.metadata.hasPendingWrites,
+          'documents': all.length,
+          'visible': list.length,
+          'sessionChanged': currentUserId != uid,
+          'statusCounts': {
+            for (final status in [
+              'Menunggu',
+              'Proses Pengecekan',
+              'Sedang Dikerjakan',
+              'Quality Check',
+              'Selesai',
+              'Dibatalkan'
+            ])
+              status: all.where((b) => b.status == status).length,
+            'unknown': all
+                .where((b) => ![
+                      'Menunggu',
+                      'Proses Pengecekan',
+                      'Sedang Dikerjakan',
+                      'Quality Check',
+                      'Selesai',
+                      'Dibatalkan'
+                    ].contains(b.status))
+                .length,
+          },
+        });
+        yield list;
+      }
+    } catch (error) {
+      GarageDiagnostics.log('bookings.error', {
+        'screen': screen,
+        'elapsedMs': watch.elapsedMilliseconds,
+        'type': error.runtimeType.toString(),
+        if (error is FirebaseException) 'code': error.code,
+      });
+      rethrow;
+    } finally {
+      timer?.cancel();
+      GarageDiagnostics.log('bookings.cancel', {'screen': screen});
+    }
+  }
+
+  /// Admin: Stream All Bookings with Pagination
+  Stream<List<BookingModel>> streamAllBookings({int limit = 50}) {
+    return _db
+        .collection('bookings')
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs
           .map((doc) => BookingModel.fromFirestore(doc.data(), doc.id))
-          .toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          .toList();
     });
+  }
+
+  /// Admin: Get Paginated Bookings (for load more functionality)
+  Future<List<BookingModel>> getPaginatedBookings({
+    required int limit,
+    DocumentSnapshot? lastDocument,
+  }) async {
+    Query query = _db
+        .collection('bookings')
+        .orderBy('createdAt', descending: true)
+        .limit(limit);
+
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+
+    final snapshot = await query.get();
+    return snapshot.docs
+        .map((doc) => BookingModel.fromFirestore(
+            doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
   }
 
   Future<void> updateBookingStatus(
@@ -129,90 +249,70 @@ class BookingService {
     });
   }
 
-  // Mock Fallbacks so app UI is never empty
-  List<BookingModel> _getMockActiveBookings() {
-    return [
-      BookingModel(
-        id: '#BK-1001',
-        userId: currentUserId ?? '1',
-        userName: 'Ahmad Fauzi',
-        userPhone: '081234567890',
-        vehicleName: 'Toyota Avanza 1.3 G',
-        vehiclePlat: 'B 1234 AG',
-        vehicleYear: 2020,
-        vehicleKm: 35000,
-        serviceName: 'Servis Rutin Berkala',
-        bookingDate: DateTime.now().add(const Duration(days: 1)),
-        bookingTime: '09:00 WIB',
-        estimatedCost: 195000,
-        status: 'Sedang Dikerjakan',
-        currentStep: 3,
-        totalSteps: 5,
-        notes: 'Ganti oli mesin & cek rem',
-        createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      ),
-      BookingModel(
-        id: '#BK-1002',
-        userId: currentUserId ?? '1',
-        userName: 'Ahmad Fauzi',
-        userPhone: '081234567890',
-        vehicleName: 'Honda HR-V 1.5 E',
-        vehiclePlat: 'B 5678 CD',
-        vehicleYear: 2021,
-        vehicleKm: 28000,
-        serviceName: 'Tune Up & Clean AC',
-        bookingDate: DateTime.now().add(const Duration(days: 3)),
-        bookingTime: '13:00 WIB',
-        estimatedCost: 380000,
-        status: 'Proses Pengecekan',
-        currentStep: 2,
-        totalSteps: 5,
-        notes: 'AC kurang dingin',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-    ];
+  /// Cancel Booking (User or Admin)
+  Future<void> cancelBooking(String bookingId) async {
+    final booking = await _db.collection('bookings').doc(bookingId).get();
+
+    if (!booking.exists) {
+      throw Exception('Booking not found');
+    }
+
+    final data = booking.data()!;
+    final status = data['status'] as String?;
+
+    if (status == 'Selesai') {
+      throw Exception('Cannot cancel completed booking');
+    }
+
+    await _db.collection('bookings').doc(bookingId).update({
+      'status': 'Dibatalkan',
+      'currentStep': 0,
+    });
   }
 
-  List<BookingModel> _getMockHistoryBookings() {
-    return [
-      BookingModel(
-        id: '#BK-0988',
-        userId: currentUserId ?? '1',
-        userName: 'Ahmad Fauzi',
-        userPhone: '081234567890',
-        vehicleName: 'Toyota Avanza 1.3 G',
-        vehiclePlat: 'B 1234 AG',
-        vehicleYear: 2020,
-        vehicleKm: 30000,
-        serviceName: 'Servis Rutin & Ganti Filter',
-        bookingDate: DateTime.now().subtract(const Duration(days: 14)),
-        bookingTime: '10:00 WIB',
-        estimatedCost: 215000,
-        status: 'Selesai',
-        currentStep: 5,
-        totalSteps: 5,
-        notes: 'Selesai tepat waktu',
-        createdAt: DateTime.now().subtract(const Duration(days: 14)),
-      ),
-      BookingModel(
-        id: '#BK-0870',
-        userId: currentUserId ?? '1',
-        userName: 'Ahmad Fauzi',
-        userPhone: '081234567890',
-        vehicleName: 'Toyota Avanza 1.3 G',
-        vehiclePlat: 'B 1234 AG',
-        vehicleYear: 2020,
-        vehicleKm: 20000,
-        serviceName: 'Ganti Ban Front Left',
-        bookingDate: DateTime.now().subtract(const Duration(days: 45)),
-        bookingTime: '14:00 WIB',
-        estimatedCost: 450000,
-        status: 'Selesai',
-        currentStep: 5,
-        totalSteps: 5,
-        notes: 'Balancing + Spooring',
-        createdAt: DateTime.now().subtract(const Duration(days: 45)),
-      ),
-    ];
+  /// Admin: Update Booking Details
+  Future<void> updateBookingDetails({
+    required String bookingId,
+    String? vehicleName,
+    String? vehiclePlat,
+    int? vehicleYear,
+    int? vehicleKm,
+    String? serviceName,
+    DateTime? bookingDate,
+    String? bookingTime,
+    double? estimatedCost,
+    String? notes,
+  }) async {
+    final updates = <String, dynamic>{};
+
+    if (vehicleName != null) updates['vehicleName'] = vehicleName;
+    if (vehiclePlat != null) updates['vehiclePlat'] = vehiclePlat;
+    if (vehicleYear != null) updates['vehicleYear'] = vehicleYear;
+    if (vehicleKm != null) updates['vehicleKm'] = vehicleKm;
+    if (serviceName != null) updates['serviceName'] = serviceName;
+    if (bookingDate != null) {
+      updates['bookingDate'] = Timestamp.fromDate(bookingDate);
+    }
+    if (bookingTime != null) updates['bookingTime'] = bookingTime;
+    if (estimatedCost != null) updates['estimatedCost'] = estimatedCost;
+    if (notes != null) updates['notes'] = notes;
+
+    if (updates.isEmpty) return;
+
+    await _db.collection('bookings').doc(bookingId).update(updates);
+  }
+
+  /// Admin: Patch userName and userPhone for a manually-created booking.
+  /// Called right after createBooking() when an admin adds a walk-in customer.
+  Future<void> patchManualBookingContact({
+    required String bookingId,
+    required String userName,
+    required String userPhone,
+  }) async {
+    final updates = <String, dynamic>{};
+    if (userName.isNotEmpty) updates['userName'] = userName;
+    if (userPhone.isNotEmpty) updates['userPhone'] = userPhone;
+    if (updates.isEmpty) return;
+    await _db.collection('bookings').doc(bookingId).update(updates);
   }
 }

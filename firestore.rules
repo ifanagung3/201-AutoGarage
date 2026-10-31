@@ -1,29 +1,149 @@
-rules_version = '2';
+﻿rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // User collection rules
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function ownsResource(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function hasValidBookingPrice(data) {
+      return
+        (data.serviceName == 'Servis Berkala' &&
+          data.estimatedCost == 350000.0) ||
+        (data.serviceName == 'Ganti Oli Mesin & Transmisi' &&
+          data.estimatedCost == 150000.0) ||
+        (data.serviceName == 'Overhaul Mesin (Turun Mesin)' &&
+          data.estimatedCost == 2500000.0) ||
+        (data.serviceName == 'Perawatan Sistem Rem & Understeel' &&
+          data.estimatedCost == 200000.0) ||
+        (data.serviceName == 'AC Service' &&
+          data.estimatedCost == 200000.0) ||
+        (data.serviceName == 'Tune Up' &&
+          data.estimatedCost == 300000.0) ||
+        (data.serviceName == 'Ganti Ban' &&
+          data.estimatedCost == 400000.0) ||
+        (data.serviceName == 'Tuning ECU & Remap Stage 1 / 2' &&
+          data.estimatedCost == 800000.0) ||
+        (data.serviceName == 'Purging Diesel & Kalibrasi Injektor' &&
+          data.estimatedCost == 450000.0) ||
+        (data.serviceName == 'Pemasangan Downpipe Stainless 304' &&
+          data.estimatedCost == 1450000.0);
+    }
+
+    function hasValidBookingOption(data) {
+      return
+        (data.serviceName == 'Tuning ECU & Remap Stage 1 / 2' &&
+          data.get('serviceOption', null) in ['Stage 1', 'Stage 2']) ||
+        (data.serviceName != 'Tuning ECU & Remap Stage 1 / 2' &&
+          data.get('serviceOption', null) == null);
+    }
+
+    function isValidBookingCreate() {
+      let data = request.resource.data;
+      return data.keys().hasAll([
+          'userId', 'userName', 'userPhone', 'vehicleName', 'vehiclePlat',
+          'vehicleYear', 'vehicleKm', 'serviceName', 'bookingDate',
+          'bookingTime', 'estimatedCost', 'status', 'currentStep',
+          'totalSteps', 'notes', 'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId', 'userName', 'userPhone', 'vehicleName', 'vehiclePlat',
+          'vehicleYear', 'vehicleKm', 'serviceName', 'serviceOption',
+          'bookingDate', 'bookingTime', 'estimatedCost', 'status',
+          'currentStep', 'totalSteps', 'notes', 'createdAt'
+        ]) &&
+        data.userId == request.auth.uid &&
+        data.userName is string && data.userName.size() <= 100 &&
+        data.userPhone is string && data.userPhone.size() <= 30 &&
+        data.vehicleName is string && data.vehicleName.size() > 0 &&
+        data.vehicleName.size() <= 100 &&
+        data.vehiclePlat is string && data.vehiclePlat.size() > 0 &&
+        data.vehiclePlat.size() <= 20 &&
+        data.vehicleYear is int &&
+        data.vehicleYear >= 1900 && data.vehicleYear <= 2100 &&
+        data.vehicleKm is int &&
+        data.vehicleKm >= 0 && data.vehicleKm <= 2000000 &&
+        data.serviceName is string &&
+        data.bookingDate is timestamp &&
+        data.bookingTime is string && data.bookingTime.size() <= 30 &&
+        data.estimatedCost is number &&
+        data.status == 'Menunggu' &&
+        data.currentStep == 1 &&
+        data.totalSteps == 5 &&
+        (data.notes == null ||
+          (data.notes is string && data.notes.size() <= 1000)) &&
+        data.createdAt is timestamp &&
+        hasValidBookingPrice(data) &&
+        hasValidBookingOption(data);
+    }
+
+    // The first administrator must be assigned via the Firebase Console/Admin SDK.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null &&
+        (request.auth.uid == userId || isAdmin());
+      allow create: if request.auth != null && request.auth.uid == userId &&
+        request.resource.data.role in ['user', 'customer'];
+      allow update: if request.auth != null && request.auth.uid == userId &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+          ['uid', 'name', 'email', 'phone', 'address', 'profileCompleted', 'updatedAt']);
+      allow delete: if false;
     }
 
     // Booking collection rules
     match /bookings/{bookingId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null &&
-        (resource.data.userId == request.auth.uid || request.auth.token.role == 'admin');
+      allow read: if isAdmin() || ownsResource(resource.data.userId);
+      allow create: if request.auth != null &&
+        isValidBookingCreate();
+      allow update: if isAdmin() ||
+        (ownsResource(resource.data.userId) &&
+          resource.data.status != 'Selesai' &&
+          resource.data.status != 'Dibatalkan' &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'currentStep']) &&
+          request.resource.data.status == 'Dibatalkan' &&
+          request.resource.data.currentStep == 0);
+      allow delete: if isAdmin();
     }
 
     // Service catalog rules
     match /services/{serviceId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.role == 'admin';
+      allow write: if isAdmin();
     }
 
-    // Default fallback
+    match /vehicles/{vehicleId} {
+      allow read, delete: if isAdmin() || ownsResource(resource.data.userId);
+      allow create: if request.auth != null &&
+        request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() ||
+        (ownsResource(resource.data.userId) &&
+          request.resource.data.userId == resource.data.userId);
+    }
+
+    match /promos/{promoId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Notifications: each user reads/updates their own; admin can write to any.
+    match /notifications/{notifId} {
+      allow read, delete: if request.auth != null &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAdmin();
+      allow update: if request.auth != null &&
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['isRead']);
+    }
+
+    // Deny access to collections that do not have an explicit policy above.
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }

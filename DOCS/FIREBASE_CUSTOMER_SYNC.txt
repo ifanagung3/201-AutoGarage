@@ -1,0 +1,60 @@
+201 Auto Garage - Customer synchronization handoff
+
+Active project: C:\Users\ASUS\StudioProjects\auto_garage_201
+
+What changed
+- Admin customer query accepts both legacy role 'user' and role 'customer'.
+- Firebase Auth and Firestore are separate stores. Registration and email/Google
+  login ensure a users/{Auth UID} document exists. Existing documents and roles
+  are not overwritten. Profile saves also recover a missing document.
+- The customer stream is stable while searching. Loading, empty, search-no-match,
+  and read-error states are distinguished. No example customers are substituted.
+- Admin access reads users/{UID}.role from the server. Email addresses beginning
+  with admin@ no longer grant privileges or change roles automatically.
+
+Firebase setup still required (not deployed by this task)
+1. Use the Firebase project configured in this app. Confirm the admin account's
+   UID in Firebase Console > Authentication > Users.
+2. In Firestore > users > that exact UID, confirm role is the string 'admin'.
+   If the document does not exist, log in once to create a normal profile, then
+   assign role 'admin' from the trusted Console. Do not put admin provisioning
+   into the public registration form. There is no universal admin password.
+3. Review firestore.rules and publish the reviewed rules in that Firebase project.
+   The users collection allows administrators to read profiles, users to create
+   a normal profile, and owners to edit profile fields without changing roles.
+   Role changes and deletion are intentionally reserved for Console/Admin SDK.
+   Rules have NOT been validated against the Firestore Emulator or deployed here.
+4. IMPORTANT: the existing broad authenticated-access fallback for collections
+   other than users is preserved to avoid changing booking/catalog behavior in
+   this focused fix. It remains a security risk; audit those permissions before
+   production. This change is not a full application security hardening.
+5. Audit existing admin-role documents: older code could promote admin-prefixed
+   emails automatically. This fix does not revoke existing roles remotely.
+
+Verification on actual devices
+- Rebuild/relaunch the app from the active project; do not use an older APK.
+- Log in as a verified administrator and open Data Pelanggan.
+- Register a customer on a second device/session. Expect a users/{UID} document
+  with role 'user' and a new entry in the open admin list.
+- Update the customer name/phone; verify the admin list updates without reopening.
+- A legacy 'customer' profile should also appear; an 'admin' profile should not.
+- A non-admin must not be able to list users or change their own role to admin.
+- Check that an actual permission error is displayed rather than an empty list.
+
+Existing Auth-only accounts
+Their profiles are created on their next successful online login. This is NOT a
+bulk migration of every Authentication account. Bulk backfill requires a trusted
+Admin SDK job with separate authorization; do not expose Auth user enumeration
+or service-account credentials in the Flutter client.
+
+Local regression tests
+flutter test test/user_profile_service_test.dart test/admin_customer_sync_test.dart
+These use local test doubles/streams, not the live Firebase project.
+Result: all 9 customer-sync regression tests passed.
+Full existing suite: 19 passed, 6 failed in booking_service_test.dart because its
+Firebase App is not initialized. That pre-existing test setup was not modified.
+
+References
+https://firebase.google.com/docs/firestore/query-data/listen
+https://firebase.google.com/docs/firestore/solutions/role-based-access
+https://firebase.google.com/docs/rules/rules-behavior

@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../screens/auth/splash_screen.dart';
@@ -7,16 +8,21 @@ import '../../screens/auth/sign_up_screen.dart';
 import '../../screens/auth/otp_screen.dart';
 import '../../screens/auth/forgot_password_screen.dart';
 import '../../screens/auth/complete_profile_screen.dart';
+import '../../screens/auth/admin_login_screen.dart';
 import '../../screens/main/main_shell.dart';
 import '../../screens/main/home_screen.dart';
 import '../../screens/main/status_servis_screen.dart';
 import '../../screens/main/riwayat_servis_screen.dart';
+import '../../screens/riwayat/riwayat_detail_screen.dart';
 import '../../screens/main/akun_screen.dart';
 import '../../screens/booking/booking_layanan_screen.dart';
 import '../../screens/booking/booking_tanggal_screen.dart';
 import '../../screens/booking/booking_waktu_screen.dart';
 import '../../screens/booking/booking_konfirmasi_screen.dart';
+import '../../screens/booking/booking_sukses_screen.dart';
 import '../../screens/booking/estimasi_biaya_screen.dart';
+import '../../screens/notifikasi/notifikasi_screen.dart';
+import '../../screens/akun/edit_profil_screen.dart';
 import '../../screens/akun/data_diri_screen.dart';
 import '../../screens/akun/kendaraan_saya_screen.dart';
 import '../../screens/akun/alamat_saya_screen.dart';
@@ -32,6 +38,7 @@ import '../../screens/admin/admin_estimasi_screen.dart';
 import '../../screens/admin/admin_pelanggan_screen.dart';
 import '../../screens/admin/admin_promo_screen.dart';
 import '../../models/booking_draft.dart';
+import '../../models/booking_model.dart';
 import '../../services/admin_access_service.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -40,11 +47,11 @@ final appRouter = GoRouter(
   initialLocation: '/splash',
   redirect: (context, state) async {
     if (!state.matchedLocation.startsWith('/admin')) return null;
-
+    if (Firebase.apps.isEmpty) return null;
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-        return '/sign-in';
+      return '/sign-in';
     }
 
     final allowed = await AdminAccessService.instance.isCurrentUserAdmin();
@@ -54,6 +61,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/splash', builder: (c, s) => const SplashScreen()),
     GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
     GoRoute(path: '/sign-in', builder: (c, s) => const SignInScreen()),
+    GoRoute(path: '/admin-login', builder: (c, s) => const AdminLoginScreen()),
     GoRoute(path: '/sign-up', builder: (c, s) => const SignUpScreen()),
     GoRoute(path: '/otp', builder: (c, s) => const OtpScreen()),
     GoRoute(
@@ -99,6 +107,26 @@ final appRouter = GoRouter(
       builder: (c, s) => BookingKonfirmasiScreen(
         draft: s.extra as BookingDraft? ?? const BookingDraft(),
       ),
+    ),
+    GoRoute(
+      path: '/booking/sukses',
+      builder: (c, s) => BookingSuksesScreen(
+        draft: s.extra as BookingDraft?,
+      ),
+    ),
+    GoRoute(
+      path: '/riwayat/detail',
+      builder: (c, s) => RiwayatDetailScreen(
+        booking: s.extra as BookingModel?,
+      ),
+    ),
+    GoRoute(
+      path: '/notifikasi',
+      builder: (c, s) => const NotifikasiScreen(),
+    ),
+    GoRoute(
+      path: '/akun/edit',
+      builder: (c, s) => const EditProfilScreen(),
     ),
     GoRoute(path: '/akun/data-diri', builder: (c, s) => const DataDiriScreen()),
     GoRoute(

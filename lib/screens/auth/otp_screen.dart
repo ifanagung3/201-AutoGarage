@@ -33,9 +33,9 @@ class _OtpScreenState extends State<OtpScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF0B0E13),
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xFF0B0E13),
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: authInk),
@@ -141,7 +141,7 @@ class _OtpScreenState extends State<OtpScreen> {
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF6475D5),
+                              color: const Color(0xFFFF3B45),
                             ),
                           ),
                         ),

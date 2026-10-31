@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../core/theme/app_colors.dart';
 import '../../models/service_estimation_model.dart';
 import '../../services/random_forest_service.dart';
+import '../../services/garage_diagnostics.dart';
 
 class EstimasiBiayaScreen extends StatefulWidget {
   const EstimasiBiayaScreen({super.key});
@@ -27,6 +30,9 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
   bool _replaceSparkPlugs = false;
 
   ServiceEstimationResult? _result;
+  bool _isLoading = false;
+  String? _errorMessage;
+  Timer? _debounceTimer;
 
   final List<String> _categories = [
     'Servis Rutin',
@@ -48,24 +54,61 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
   @override
   void initState() {
     super.initState();
+    final opened = Stopwatch()..start();
+    GarageDiagnostics.log('calculator.open', {'build': 'customer-diag-1'});
     _calculateEstimation();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      GarageDiagnostics.log('calculator.firstFrame', {
+        'elapsedMs': opened.elapsedMilliseconds,
+        'hasResult': _result != null,
+        'loading': _isLoading,
+        'hasError': _errorMessage != null,
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    GarageDiagnostics.log('calculator.close');
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 
   void _calculateEstimation() {
-    final input = ServiceEstimationInput(
-      category: _selectedCategory,
-      vehicleType: _selectedVehicleType,
-      year: _selectedYear,
-      kilometer: _kilometer,
-      replaceEngineOil: _replaceEngineOil,
-      replaceFilter: _replaceFilter,
-      replaceBrakePad: _replaceBrakePad,
-      replaceSparkPlugs: _replaceSparkPlugs,
-    );
+    try {
+      final input = ServiceEstimationInput(
+        category: _selectedCategory,
+        vehicleType: _selectedVehicleType,
+        year: _selectedYear,
+        kilometer: _kilometer,
+        replaceEngineOil: _replaceEngineOil,
+        replaceFilter: _replaceFilter,
+        replaceBrakePad: _replaceBrakePad,
+        replaceSparkPlugs: _replaceSparkPlugs,
+      );
 
-    setState(() {
-      _result = RandomForestService.instance.predictCost(input);
-    });
+      final result = GarageDiagnostics.measure(
+        'calculator.compute',
+        () => RandomForestService.instance.predictCost(input),
+      );
+
+      setState(() {
+        _result = result;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Gagal menghitung estimasi: ${e.toString()}';
+      });
+    }
+  }
+
+  void _calculateEstimationDebounced() {
+    _debounceTimer?.cancel();
+    _calculateEstimation();
   }
 
   void _handleBack() {
@@ -88,20 +131,21 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: AppColors.softBg,
         appBar: AppBar(
-          backgroundColor: const Color(0xFF5B8DEF),
+          backgroundColor: AppColors.cardBg,
+          foregroundColor: AppColors.textPrimary,
           elevation: 0,
           title: Text(
             'Kalkulator Estimasi Biaya (Random Forest)',
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: AppColors.textPrimary,
             ),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: _handleBack,
           ),
         ),
@@ -115,7 +159,7 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF5B8DEF), Color(0xFF3872E0)],
+                    colors: [Color(0xFFFF3B45), Color(0xFFB91C2C)],
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -124,7 +168,7 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -151,7 +195,7 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                             'Algoritma Random Forest Regression (Akurasi R² ${metrics['rSquared']})',
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                         ],
@@ -163,238 +207,350 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
               const SizedBox(height: 20),
 
               // Form Section
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Detail Kendaraan & Layanan',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Category Dropdown
-                    Text(
-                      'Jenis Layanan',
-                      style: GoogleFonts.poppins(
-                          fontSize: 13, color: Colors.grey[700]),
-                    ),
-                    const SizedBox(height: 6),
-                    DropdownButtonFormField<String>(
-                      value: _selectedCategory,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: const Color(0xFFF8FAFC),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 12),
-                      ),
-                      items: _categories
-                          .map((c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(c,
-                                  style: GoogleFonts.poppins(fontSize: 14))))
-                          .toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          _selectedCategory = val;
-                          _calculateEstimation();
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Vehicle Type & Year Row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Tipe Bodi',
-                                  style: GoogleFonts.poppins(
-                                      fontSize: 13, color: Colors.grey[700])),
-                              const SizedBox(height: 6),
-                              DropdownButtonFormField<String>(
-                                value: _selectedVehicleType,
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: const Color(0xFFF8FAFC),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 12),
-                                ),
-                                items: _vehicleTypes
-                                    .map((v) => DropdownMenuItem(
-                                        value: v,
-                                        child: Text(v,
-                                            style: GoogleFonts.poppins(
-                                                fontSize: 14))))
-                                    .toList(),
-                                onChanged: (val) {
-                                  if (val != null) {
-                                    _selectedVehicleType = val;
-                                    _calculateEstimation();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Tahun Pembuatan',
-                                  style: GoogleFonts.poppins(
-                                      fontSize: 13, color: Colors.grey[700])),
-                              const SizedBox(height: 6),
-                              DropdownButtonFormField<int>(
-                                value: _selectedYear,
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: const Color(0xFFF8FAFC),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 12),
-                                ),
-                                items:
-                                    List.generate(20, (index) => 2026 - index)
-                                        .map((y) => DropdownMenuItem(
-                                            value: y,
-                                            child: Text(y.toString(),
-                                                style: GoogleFonts.poppins(
-                                                    fontSize: 14))))
-                                        .toList(),
-                                onChanged: (val) {
-                                  if (val != null) {
-                                    _selectedYear = val;
-                                    _calculateEstimation();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Kilometer Slider
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Jarak Tempuh (Kilometer)',
-                            style: GoogleFonts.poppins(
-                                fontSize: 13, color: Colors.grey[700])),
-                        Text('${_kilometer.toString()} KM',
-                            style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF5B8DEF))),
-                      ],
-                    ),
-                    Slider(
-                      value: _kilometer.toDouble(),
-                      min: 5000,
-                      max: 200000,
-                      divisions: 39,
-                      activeColor: const Color(0xFF5B8DEF),
-                      onChanged: (val) {
-                        _kilometer = val.round();
-                        _calculateEstimation();
-                      },
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Spareparts Options
-                    Text('Pilihan Komponen / Replacement',
+              Material(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Detail Kendaraan & Layanan',
                         style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1E293B))),
-                    const SizedBox(height: 8),
-                    CheckboxListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      title: Text('Oli Mesin Synth (4 Liter)',
-                          style: GoogleFonts.poppins(fontSize: 13)),
-                      value: _replaceEngineOil,
-                      activeColor: const Color(0xFF5B8DEF),
-                      onChanged: (val) {
-                        _replaceEngineOil = val ?? false;
-                        _calculateEstimation();
-                      },
-                    ),
-                    CheckboxListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      title: Text('Filter Oli & Filter Udara',
-                          style: GoogleFonts.poppins(fontSize: 13)),
-                      value: _replaceFilter,
-                      activeColor: const Color(0xFF5B8DEF),
-                      onChanged: (val) {
-                        _replaceFilter = val ?? false;
-                        _calculateEstimation();
-                      },
-                    ),
-                    CheckboxListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      title: Text('Kampas Rem (Brake Pad Set)',
-                          style: GoogleFonts.poppins(fontSize: 13)),
-                      value: _replaceBrakePad,
-                      activeColor: const Color(0xFF5B8DEF),
-                      onChanged: (val) {
-                        _replaceBrakePad = val ?? false;
-                        _calculateEstimation();
-                      },
-                    ),
-                    CheckboxListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      title: Text('Busi Iridium Set',
-                          style: GoogleFonts.poppins(fontSize: 13)),
-                      value: _replaceSparkPlugs,
-                      activeColor: const Color(0xFF5B8DEF),
-                      onChanged: (val) {
-                        _replaceSparkPlugs = val ?? false;
-                        _calculateEstimation();
-                      },
-                    ),
-                  ],
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Category Dropdown
+                      Text(
+                        'Jenis Layanan',
+                        style: GoogleFonts.poppins(
+                            fontSize: 13, color: AppColors.textMuted),
+                      ),
+                      const SizedBox(height: 6),
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedCategory,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: AppColors.softBg,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
+                        ),
+                        items: _categories
+                            .map((c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(c,
+                                    style: GoogleFonts.poppins(fontSize: 14))))
+                            .toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            _selectedCategory = val;
+                            _calculateEstimation();
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Vehicle Type & Year Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Tipe Bodi',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: AppColors.textMuted)),
+                                const SizedBox(height: 6),
+                                DropdownButtonFormField<String>(
+                                  initialValue: _selectedVehicleType,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: AppColors.softBg,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 12),
+                                  ),
+                                  items: _vehicleTypes
+                                      .map((v) => DropdownMenuItem(
+                                          value: v,
+                                          child: Text(v,
+                                              style: GoogleFonts.poppins(
+                                                  fontSize: 14))))
+                                      .toList(),
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      _selectedVehicleType = val;
+                                      _calculateEstimation();
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Tahun Pembuatan',
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: AppColors.textMuted)),
+                                const SizedBox(height: 6),
+                                DropdownButtonFormField<int>(
+                                  initialValue: _selectedYear,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: AppColors.softBg,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 12),
+                                  ),
+                                  items:
+                                      List.generate(20, (index) => 2026 - index)
+                                          .map((y) => DropdownMenuItem(
+                                              value: y,
+                                              child: Text(y.toString(),
+                                                  style: GoogleFonts.poppins(
+                                                      fontSize: 14))))
+                                          .toList(),
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      _selectedYear = val;
+                                      _calculateEstimation();
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Kilometer Slider
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Jarak Tempuh (Kilometer)',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 13, color: AppColors.textMuted)),
+                          Text('${_kilometer.toString()} KM',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFFF3B45))),
+                        ],
+                      ),
+                      Slider(
+                        value: _kilometer.toDouble(),
+                        min: 5000,
+                        max: 200000,
+                        divisions: 39,
+                        activeColor: const Color(0xFFFF3B45),
+                        onChanged: (val) {
+                          setState(() {
+                            _kilometer = val.round();
+                          });
+                          _calculateEstimationDebounced();
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Spareparts Options
+                      Text('Pilihan Komponen / Replacement',
+                          style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary)),
+                      const SizedBox(height: 8),
+                      CheckboxListTile(
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        title: Text(
+                          'Oli Mesin Synth (4 Liter)',
+                          style: GoogleFonts.poppins(fontSize: 13),
+                          softWrap: true,
+                        ),
+                        value: _replaceEngineOil,
+                        activeColor: const Color(0xFFFF3B45),
+                        onChanged: (val) {
+                          setState(() {
+                            _replaceEngineOil = val ?? false;
+                          });
+                          _calculateEstimation();
+                        },
+                      ),
+                      CheckboxListTile(
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        title: Text(
+                          'Filter Oli & Filter Udara',
+                          style: GoogleFonts.poppins(fontSize: 13),
+                          softWrap: true,
+                        ),
+                        value: _replaceFilter,
+                        activeColor: const Color(0xFFFF3B45),
+                        onChanged: (val) {
+                          setState(() {
+                            _replaceFilter = val ?? false;
+                          });
+                          _calculateEstimation();
+                        },
+                      ),
+                      CheckboxListTile(
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        title: Text(
+                          'Kampas Rem (Brake Pad Set)',
+                          style: GoogleFonts.poppins(fontSize: 13),
+                          softWrap: true,
+                        ),
+                        value: _replaceBrakePad,
+                        activeColor: const Color(0xFFFF3B45),
+                        onChanged: (val) {
+                          setState(() {
+                            _replaceBrakePad = val ?? false;
+                          });
+                          _calculateEstimation();
+                        },
+                      ),
+                      CheckboxListTile(
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        title: Text(
+                          'Busi Iridium Set',
+                          style: GoogleFonts.poppins(fontSize: 13),
+                          softWrap: true,
+                        ),
+                        value: _replaceSparkPlugs,
+                        activeColor: const Color(0xFFFF3B45),
+                        onChanged: (val) {
+                          setState(() {
+                            _replaceSparkPlugs = val ?? false;
+                          });
+                          _calculateEstimation();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
+
+              // Error Message Section
+              if (_errorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.error_outline,
+                              color: Colors.red.shade700, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: Colors.red.shade900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _calculateEstimation,
+                          icon: const Icon(Icons.refresh, size: 18),
+                          label: Text('Coba Lagi',
+                              style: GoogleFonts.poppins(fontSize: 13)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade600,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              // Loading State
+              if (_isLoading && _result == null) ...[
+                Container(
+                  padding: const EdgeInsets.all(40),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBg,
+                    border: Border.all(color: AppColors.outline),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      const CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Color(0xFFFF3B45)),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Menghitung estimasi biaya...',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
 
               // Results Section
               if (_result != null) ...[
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.cardBg,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                        color: const Color(0xFF5B8DEF).withOpacity(0.3),
+                        color: const Color(0xFFFF3B45).withValues(alpha: 0.3),
                         width: 1.5),
                   ),
                   child: Column(
@@ -407,12 +563,13 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                               style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF1E293B))),
+                                  color: AppColors.textPrimary)),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withOpacity(0.1),
+                              color: const Color(0xFF10B981)
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -440,7 +597,7 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                               style: GoogleFonts.poppins(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF5B8DEF),
+                                color: const Color(0xFFFF3B45),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -482,7 +639,7 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: AppColors.softBg,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -512,7 +669,7 @@ class _EstimasiBiayaScreenState extends State<EstimasiBiayaScreen> {
                       context.go('/booking/layanan');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5B8DEF),
+                      backgroundColor: const Color(0xFFFF3B45),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(26),
                       ),
@@ -561,15 +718,16 @@ class _CostDetailTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: const Color(0xFF5B8DEF), size: 22),
+        Icon(icon, color: const Color(0xFFFF3B45), size: 22),
         const SizedBox(height: 4),
         Text(title,
-            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600])),
+            style:
+                GoogleFonts.poppins(fontSize: 12, color: AppColors.textMuted)),
         Text(value,
             style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1E293B))),
+                color: AppColors.textPrimary)),
       ],
     );
   }
@@ -594,7 +752,7 @@ class _MetricItem extends StatelessWidget {
             style: GoogleFonts.poppins(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF5B8DEF))),
+                color: const Color(0xFFFF3B45))),
       ],
     );
   }

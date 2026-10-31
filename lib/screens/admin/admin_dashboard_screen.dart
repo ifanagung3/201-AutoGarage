@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../core/theme/app_colors.dart';
 import '../../models/booking_model.dart';
 import '../../services/auth_service.dart';
 import '../../services/booking_service.dart';
@@ -11,22 +12,30 @@ class AdminDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final currencyFormat =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: AppColors.softBg,
       body: SafeArea(
         child: StreamBuilder<List<BookingModel>>(
           stream: BookingService.instance.streamAllBookings(),
           builder: (context, snapshot) {
             final bookings = snapshot.data ?? [];
 
-            int totalCount = bookings.length;
-            int pendingCount = bookings.where((b) => b.status == 'Menunggu').length;
-            int activeCount = bookings.where((b) => b.status == 'Proses Pengecekan' || b.status == 'Sedang Dikerjakan' || b.status == 'Quality Check').length;
-            int completedCount = bookings.where((b) => b.status == 'Selesai').length;
+            final totalCount = bookings.length;
+            final pendingCount =
+                bookings.where((b) => b.status == 'Menunggu').length;
+            final activeCount = bookings
+                .where((b) =>
+                    b.status == 'Proses Pengecekan' ||
+                    b.status == 'Sedang Dikerjakan' ||
+                    b.status == 'Quality Check')
+                .length;
+            final completedCount =
+                bookings.where((b) => b.status == 'Selesai').length;
 
-            double totalRevenue = bookings
+            final totalRevenue = bookings
                 .where((b) => b.status == 'Selesai')
                 .fold(0.0, (sum, item) => sum + item.estimatedCost);
 
@@ -37,8 +46,9 @@ class AdminDashboardScreen extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
-                      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                      color: AppColors.darkNavy,
+                      borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(24)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.2),
@@ -55,10 +65,14 @@ class AdminDashboardScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF97316).withValues(alpha: 0.2),
+                                color: const Color(0xFFFF3B45)
+                                    .withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.admin_panel_settings_rounded, color: Color(0xFFF97316), size: 28),
+                              child: const Icon(
+                                  Icons.admin_panel_settings_rounded,
+                                  color: Color(0xFFFF3B45),
+                                  size: 28),
                             ),
                             const SizedBox(width: 14),
                             Column(
@@ -90,7 +104,8 @@ class AdminDashboardScreen extends StatelessWidget {
                               color: Colors.redAccent.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+                            child: const Icon(Icons.logout_rounded,
+                                color: Colors.redAccent, size: 20),
                           ),
                           tooltip: 'Keluar Admin',
                           onPressed: () async {
@@ -107,7 +122,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 SliverPadding(
                   padding: const EdgeInsets.all(20),
                   sliver: SliverList(
-                    delegate: SliverChildListChildDelegate([
+                    delegate: SliverChildListDelegate([
                       // Revenue Header Banner
                       Container(
                         width: double.infinity,
@@ -116,12 +131,17 @@ class AdminDashboardScreen extends StatelessWidget {
                           gradient: const LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [Color(0xFFEA580C), Color(0xFFC2410C), Color(0xFF9A3412)],
+                            colors: [
+                              Color(0xFFDC2626),
+                              Color(0xFFB91C2C),
+                              Color(0xFF7F1D1D)
+                            ],
                           ),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFEA580C).withValues(alpha: 0.3),
+                              color: const Color(0xFFDC2626)
+                                  .withValues(alpha: 0.3),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             ),
@@ -135,20 +155,30 @@ class AdminDashboardScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   'Pendapatan Servis Selesai',
-                                  style: GoogleFonts.poppins(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.w500),
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                    color:
+                                        Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.trending_up, color: Colors.white, size: 14),
+                                      const Icon(Icons.trending_up,
+                                          color: Colors.white, size: 14),
                                       const SizedBox(width: 4),
-                                      Text('Terverifikasi', style: GoogleFonts.poppins(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold)),
+                                      Text('Terverifikasi',
+                                          style: GoogleFonts.poppins(
+                                              fontSize: 11,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold)),
                                     ],
                                   ),
                                 ),
@@ -157,22 +187,31 @@ class AdminDashboardScreen extends StatelessWidget {
                             const SizedBox(height: 10),
                             Text(
                               currencyFormat.format(totalRevenue),
-                              style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: GoogleFonts.poppins(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Akumulasi dari $completedCount transaksi servis yang berstatus Selesai',
-                              style: GoogleFonts.poppins(fontSize: 12, color: Colors.white.withValues(alpha: 0.85)),
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color:
+                                      Colors.white.withValues(alpha: 0.85)),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
 
-                      // Section Title
+                      // Section Title — use textPrimary, background is softBg (light)
                       Text(
                         'Ringkasan Booking Real-Time',
-                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 14),
 
@@ -185,18 +224,37 @@ class AdminDashboardScreen extends StatelessWidget {
                         mainAxisSpacing: 12,
                         childAspectRatio: 1.35,
                         children: [
-                          _StatCard(title: 'Total Booking', value: totalCount.toString(), icon: Icons.book_online_rounded, color: const Color(0xFF3B82F6)),
-                          _StatCard(title: 'Menunggu', value: pendingCount.toString(), icon: Icons.pending_actions_rounded, color: const Color(0xFFF59E0B)),
-                          _StatCard(title: 'Sedang Proses', value: activeCount.toString(), icon: Icons.build_circle_rounded, color: const Color(0xFF06B6D4)),
-                          _StatCard(title: 'Selesai', value: completedCount.toString(), icon: Icons.check_circle_rounded, color: const Color(0xFF10B981)),
+                          _StatCard(
+                              title: 'Total Booking',
+                              value: totalCount.toString(),
+                              icon: Icons.book_online_rounded,
+                              color: const Color(0xFFFF3B45)),
+                          _StatCard(
+                              title: 'Menunggu',
+                              value: pendingCount.toString(),
+                              icon: Icons.pending_actions_rounded,
+                              color: const Color(0xFFF59E0B)),
+                          _StatCard(
+                              title: 'Sedang Proses',
+                              value: activeCount.toString(),
+                              icon: Icons.build_circle_rounded,
+                              color: const Color(0xFF06B6D4)),
+                          _StatCard(
+                              title: 'Selesai',
+                              value: completedCount.toString(),
+                              icon: Icons.check_circle_rounded,
+                              color: const Color(0xFF10B981)),
                         ],
                       ),
                       const SizedBox(height: 24),
 
-                      // Menu Pintas Grid
+                      // Menu Pintas Grid — use textPrimary
                       Text(
                         'Akses Pintas Pengelolaan',
-                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary),
                       ),
                       const SizedBox(height: 14),
 
@@ -207,7 +265,7 @@ class AdminDashboardScreen extends StatelessWidget {
                               title: 'Input Estimasi',
                               subtitle: 'Hitung Biaya',
                               icon: Icons.calculate_rounded,
-                              color: const Color(0xFFF97316),
+                              color: const Color(0xFFFF3B45),
                               onTap: () => context.go('/admin/estimasi'),
                             ),
                           ),
@@ -217,7 +275,7 @@ class AdminDashboardScreen extends StatelessWidget {
                               title: 'Data Pelanggan',
                               subtitle: 'Sync Profile',
                               icon: Icons.people_alt_rounded,
-                              color: const Color(0xFF3B82F6),
+                              color: const Color(0xFFFF3B45),
                               onTap: () => context.go('/admin/pelanggan'),
                             ),
                           ),
@@ -264,16 +322,20 @@ class _StatCard extends StatelessWidget {
   final String title, value;
   final IconData icon;
   final Color color;
-  const _StatCard({required this.title, required this.value, required this.icon, required this.color});
+  const _StatCard(
+      {required this.title,
+      required this.value,
+      required this.icon,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: AppColors.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,13 +354,19 @@ class _StatCard extends StatelessWidget {
               ),
               Text(
                 value,
-                style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                style: GoogleFonts.poppins(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary),
               ),
             ],
           ),
           Text(
             title,
-            style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+            style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: AppColors.textMuted,
+                fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -328,9 +396,9 @@ class _ShortcutTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          border: Border.all(color: AppColors.outline),
         ),
         child: Row(
           children: [
@@ -347,8 +415,14 @@ class _ShortcutTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
-                  Text(subtitle, style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[400])),
+                  Text(title,
+                      style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary)),
+                  Text(subtitle,
+                      style: GoogleFonts.poppins(
+                          fontSize: 11, color: AppColors.textMuted)),
                 ],
               ),
             ),

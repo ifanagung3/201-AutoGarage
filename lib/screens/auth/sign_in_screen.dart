@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -36,7 +37,9 @@ class _SignInScreenState extends State<SignInScreen> {
       await _routeAfterLogin();
     } on FirebaseAuthException catch (e) {
       String msg = 'Login gagal: ${e.message}';
-      if (e.code == 'user-not-found' || e.code == 'invalid-credential') msg = 'Akun belum terdaftar atau password salah';
+      if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
+        msg = 'Akun belum terdaftar atau password salah';
+      }
       if (e.code == 'wrong-password') msg = 'Password salah';
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -80,146 +83,149 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF3F8FB),
-              Colors.white,
-              Color(0xFFF7F6FB),
-              Colors.white
-            ],
-            stops: [0, 0.35, 0.65, 1],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: Color(0xFF0B0E13),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1A2029),
+                Color(0xFF0B0E13),
+                Color(0xFF0B0E13),
+                Color(0xFF11151C)
+              ],
+              stops: [0, 0.35, 0.65, 1],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(29, 40, 29, 32),
-                child: AutofillGroup(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Center(
-                          child: SizedBox(
-                        width: 198,
-                        child: ReferenceArtwork(logo: true),
-                      )),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Selamat Datang Kembali',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: authInk,
-                          letterSpacing: -0.7,
+          child: SafeArea(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(29, 40, 29, 32),
+                  child: AutofillGroup(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Center(
+                            child: SizedBox(
+                          width: 132,
+                          height: 132,
+                          child: ReferenceArtwork(logo: true),
+                        )),
+                        const SizedBox(height: 18),
+                        Text(
+                          'Selamat Datang Kembali',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: authInk,
+                            letterSpacing: -0.7,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Masuk ke akun Anda menggunakan\nemail atau akun sosial anda',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
-                            fontSize: 14, height: 1.6, color: authMuted),
-                      ),
-                      const SizedBox(height: 34),
-                      _input(password: false),
-                      const SizedBox(height: 22),
-                      _input(password: true),
-                      const SizedBox(height: 4),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () => context.go('/forgot-password'),
-                          style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                          child: Text('Forgot Password?',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: const Color(0xFF6475D5),
-                              )),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Masuk ke akun Anda menggunakan\nemail atau akun sosial anda',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                              fontSize: 14, height: 1.6, color: authMuted),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      GradientAction(
-                        onPressed: _isLoading ? null : _signInWithEmail,
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white))
-                            : Text('Sign In',
-                                style: GoogleFonts.poppins(fontSize: 16)),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('First time here?',
+                        const SizedBox(height: 34),
+                        _input(password: false),
+                        const SizedBox(height: 22),
+                        _input(password: true),
+                        const SizedBox(height: 4),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () => context.go('/forgot-password'),
+                            style:
+                                TextButton.styleFrom(padding: EdgeInsets.zero),
+                            child: Text('Lupa password?',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: const Color(0xFFFF3B45),
+                                )),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        GradientAction(
+                          onPressed: _isLoading ? null : _signInWithEmail,
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white))
+                              : Text('Masuk',
+                                  style: GoogleFonts.poppins(fontSize: 16)),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Belum punya akun?',
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 14, color: authInk)),
+                              TextButton(
+                                onPressed: () => context.go('/sign-up'),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  minimumSize: const Size(0, 48),
+                                ),
+                                child: Text('Daftar',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: const Color(0xFFFF3B45),
+                                    )),
+                              ),
+                            ]),
+                        const SizedBox(height: 20),
+                        Row(children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text('Atau masuk dengan',
                                 style: GoogleFonts.poppins(
                                     fontSize: 14, color: authInk)),
-                            TextButton(
-                              onPressed: () => context.go('/sign-up'),
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.only(left: 4),
-                                minimumSize: const Size(0, 48),
-                              ),
-                              child: Text('Sign up',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: const Color(0xFF6475D5),
-                                  )),
-                            ),
-                          ]),
-                      const SizedBox(height: 20),
-                      Row(children: [
-                        const Expanded(
-                            child: Divider(color: Color(0xFFE8E8EB))),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text('Or sign in with',
-                              style: GoogleFonts.poppins(
-                                  fontSize: 14, color: authInk)),
-                        ),
-                        const Expanded(
-                            child: Divider(color: Color(0xFFE8E8EB))),
-                      ]),
-                      const SizedBox(height: 24),
-                      Row(children: [
-                        Expanded(
-                            child: _social(
-                          label: 'Google',
-                          icon: const CustomPaint(
-                              size: Size(20, 20),
-                              painter: _GoogleMarkPainter()),
-                          onPressed: _isLoading ? null : _signInWithGoogle,
-                        )),
-                        const SizedBox(width: 20),
-                        Expanded(
-                            child: _social(
-                          label: 'Facebook',
-                          icon: const Icon(Icons.facebook,
-                              color: Color(0xFF1877F2), size: 25),
-                          onPressed: _isLoading
-                              ? null
-                              : () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Login Facebook belum dikonfigurasi. Gunakan email atau Google.')),
-                                  );
-                                },
-                        )),
-                      ]),
-                    ],
+                          ),
+                          const Expanded(child: Divider()),
+                        ]),
+                        const SizedBox(height: 24),
+                        Row(children: [
+                          Expanded(
+                              child: _social(
+                            label: 'Google',
+                            icon: const CustomPaint(
+                                size: Size(20, 20),
+                                painter: _GoogleMarkPainter()),
+                            onPressed: _isLoading ? null : _signInWithGoogle,
+                          )),
+                          const SizedBox(width: 20),
+                          Expanded(
+                              child: _social(
+                            label: 'Facebook',
+                            icon: const Icon(Icons.facebook,
+                                color: Color(0xFF1877F2), size: 25),
+                            onPressed: _isLoading
+                                ? null
+                                : () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Login Facebook belum dikonfigurasi. Gunakan email atau Google.')),
+                                    );
+                                  },
+                          )),
+                        ]),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -251,16 +257,15 @@ class _SignInScreenState extends State<SignInScreen> {
         style: GoogleFonts.poppins(fontSize: 14, color: authInk),
         decoration: InputDecoration(
           hintText: password ? 'Password' : 'Email',
-          hintStyle:
-              GoogleFonts.poppins(fontSize: 14, color: const Color(0xFFADB0BF)),
+          hintStyle: GoogleFonts.poppins(fontSize: 14, color: authMuted),
           filled: true,
-          fillColor: const Color(0xFFF0F0F6),
+          fillColor: authInputBg,
           prefixIcon: Icon(
               password
                   ? Icons.lock_outline_rounded
                   : Icons.mail_outline_rounded,
               size: 23,
-              color: const Color(0xFFC5C7D2)),
+              color: authMuted),
           prefixIconConstraints: const BoxConstraints(minWidth: 54),
           suffixIcon: password
               ? IconButton(
@@ -273,7 +278,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       _obscurePassword
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: const Color(0xFFC5C7D2),
+                      color: authMuted,
                       size: 23),
                 )
               : null,
@@ -281,13 +286,14 @@ class _SignInScreenState extends State<SignInScreen> {
               const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(11),
-              borderSide: BorderSide.none),
+              borderSide: const BorderSide(color: authOutline)),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(11),
-              borderSide: BorderSide.none),
+              borderSide: const BorderSide(color: authOutline)),
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(11),
-              borderSide: const BorderSide(color: Color(0xFF6678CB))),
+              borderSide:
+                  const BorderSide(color: Color(0xFFFF3B45), width: 1.5)),
         ),
       );
 
@@ -309,11 +315,11 @@ class _SignInScreenState extends State<SignInScreen> {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          backgroundColor: const Color(0xFFF7F8FA),
+          backgroundColor: authInputBg,
           foregroundColor: authInk,
           minimumSize: const Size(0, 52),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          side: const BorderSide(color: Color(0xFFEEEEF1)),
+          side: const BorderSide(color: authOutline),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),

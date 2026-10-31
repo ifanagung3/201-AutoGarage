@@ -10,6 +10,7 @@ class BookingModel {
   final int vehicleYear;
   final int vehicleKm;
   final String serviceName;
+  final String? serviceOption;
   final DateTime bookingDate;
   final String bookingTime;
   final double estimatedCost;
@@ -30,6 +31,7 @@ class BookingModel {
     required this.vehicleYear,
     required this.vehicleKm,
     required this.serviceName,
+    this.serviceOption,
     required this.bookingDate,
     required this.bookingTime,
     required this.estimatedCost,
@@ -51,6 +53,7 @@ class BookingModel {
       vehicleYear: data['vehicleYear'] ?? 2020,
       vehicleKm: data['vehicleKm'] ?? 10000,
       serviceName: data['serviceName'] ?? '',
+      serviceOption: data['serviceOption'],
       bookingDate:
           (data['bookingDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       bookingTime: data['bookingTime'] ?? '09:00',
@@ -73,6 +76,7 @@ class BookingModel {
       'vehicleYear': vehicleYear,
       'vehicleKm': vehicleKm,
       'serviceName': serviceName,
+      if (serviceOption != null) 'serviceOption': serviceOption,
       'bookingDate': Timestamp.fromDate(bookingDate),
       'bookingTime': bookingTime,
       'estimatedCost': estimatedCost,

@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../core/theme/app_colors.dart';
+import '../../services/user_profile_service.dart';
 
 class DataDiriScreen extends StatefulWidget {
   const DataDiriScreen({super.key});
@@ -32,7 +34,10 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
       _nameController.text = user.displayName ?? '';
 
       try {
-        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
         if (doc.exists) {
           final data = doc.data()!;
           if ((data['name'] ?? '').isNotEmpty) {
@@ -41,7 +46,17 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
           _phoneController.text = data['phone'] ?? '';
           _addressController.text = data['address'] ?? '';
         }
-      } catch (_) {}
+      } catch (error) {
+        debugPrint('Failed to load user details: $error');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Gagal memuat data profil dari Firebase.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
     if (mounted) setState(() => _isLoading = false);
   }
@@ -60,6 +75,7 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
     setState(() => _isSaving = true);
     try {
       await user.updateDisplayName(_nameController.text.trim());
+      await UserProfileService.ensure(user, name: _nameController.text.trim());
 
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'uid': user.uid,
@@ -72,14 +88,18 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data diri berhasil diperbarui!'), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Data diri berhasil diperbarui!'),
+              backgroundColor: Colors.green),
         );
         _handleBack(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menyimpan: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Gagal menyimpan: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -105,18 +125,21 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF9FAFC),
+        backgroundColor: AppColors.softBg,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.cardBg,
           elevation: 0,
-          title: Text('Data Diri', style: GoogleFonts.poppins(color: const Color(0xFF1E293B), fontWeight: FontWeight.bold)),
+          title: Text('Data Diri',
+              style: GoogleFonts.poppins(
+                  color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: () => _handleBack(context),
           ),
         ),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF5B8DEF)))
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFFFF3B45)))
             : SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -128,21 +151,26 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
                         labelText: 'Nama Lengkap',
                         prefixIcon: const Icon(Icons.person_outline),
                         filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        fillColor: AppColors.inputBg,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _emailController,
                       enabled: false,
-                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.grey[600]),
                       decoration: InputDecoration(
                         labelText: 'Email',
                         prefixIcon: const Icon(Icons.email_outlined),
                         filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        fillColor: AppColors.inputBg,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -154,8 +182,10 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
                         labelText: 'Nomor Telepon / WhatsApp',
                         prefixIcon: const Icon(Icons.phone_outlined),
                         filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        fillColor: AppColors.inputBg,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -167,8 +197,10 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
                         labelText: 'Alamat Domisili',
                         prefixIcon: const Icon(Icons.location_on_outlined),
                         filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        fillColor: AppColors.inputBg,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -178,12 +210,21 @@ class _DataDiriScreenState extends State<DataDiriScreen> {
                       child: ElevatedButton(
                         onPressed: _isSaving ? null : _saveUserData,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5B8DEF),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          backgroundColor: const Color(0xFFFF3B45),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: _isSaving
-                            ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                            : Text('Simpan Perubahan', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white))
+                            : Text('Simpan Perubahan',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white)),
                       ),
                     ),
                   ],

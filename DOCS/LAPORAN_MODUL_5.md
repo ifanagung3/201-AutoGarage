@@ -8,8 +8,7 @@
 - 📱 **Nama Aplikasi:** 201 Auto Garage - Mobile Servis Kendaraan
 - 🐙 **Repository GitHub:** [https://github.com/ifanagung3/201-AutoGarage](https://github.com/ifanagung3/201-AutoGarage)
 - 🎨 **Design Figma (UI/UX):** [https://www.figma.com/file/201-AutoGarage-UI-Design](https://www.figma.com/file/201-AutoGarage-UI-Design)
-- 📄 **File PDF Laporan:** [LAPORAN_MODUL_5_201_AUTO_GARAGE.pdf](../LAPORAN_MODUL_5_201_AUTO_GARAGE.pdf)
-- 📊 **File Presentation PPTX:** [PRESENTASI_201_AUTO_GARAGE_APP_DEV.pptx](../PRESENTASI_201_AUTO_GARAGE_APP_DEV.pptx)
+- 📖 **Format laporan:** Markdown
 - 🛠️ **Teknologi Utama:** Flutter (Dart), Firebase Authentication, Cloud Firestore (Database Real-time)
 
 ---

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 
-const authInk = Color(0xFF171D38);
-const authMuted = Color(0xFF85889E);
+const authInk = AppColors.authInk;
+const authMuted = AppColors.authMuted;
+const authInputBg = Color(0xFF171C24);
+const authOutline = Color(0xFF2A313C);
 const authGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [Color(0xFF7972C3), Color(0xFF358DC7)],
+  colors: [Color(0xFFFF3B45), Color(0xFFB91C2C)],
 );
 
 /// Displays only the artwork from the supplied design at its original ratio.
@@ -16,9 +19,16 @@ class ReferenceArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rect = logo
-        ? const Rect.fromLTWH(126, 400, 198, 82)
-        : const Rect.fromLTWH(0, 400, 430, 494);
+    if (logo) {
+      return Image.asset(
+        'assets/images/201_auto_garage_brand.png',
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+        excludeFromSemantics: true,
+      );
+    }
+
+    const rect = Rect.fromLTWH(0, 400, 430, 494);
     return AspectRatio(
       aspectRatio: rect.width / rect.height,
       child: LayoutBuilder(builder: (context, constraints) {
@@ -31,9 +41,7 @@ class ReferenceArtwork extends StatelessWidget {
               width: 430 * scale,
               height: 932 * scale,
               child: Image.asset(
-                logo
-                    ? 'assets/images/splash_reference.png'
-                    : 'assets/images/onboarding_reference.png',
+                'assets/images/onboarding_reference.png',
                 fit: BoxFit.fill,
                 filterQuality: FilterQuality.high,
                 excludeFromSemantics: true,

@@ -36,7 +36,7 @@ class TentangScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.directions_car,
-                  size: 100, color: Color(0xFF3B82F6)),
+                  size: 100, color: Color(0xFFFF3B45)),
               const SizedBox(height: 24),
               Text('201 Auto Garage',
                   style: GoogleFonts.poppins(

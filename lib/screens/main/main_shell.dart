@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_colors.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -31,10 +32,11 @@ class MainShell extends StatelessWidget {
         }
       },
       child: Scaffold(
+        backgroundColor: AppColors.softBg,
         body: child,
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: selectedIndex,
-          onTap: (index) {
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: selectedIndex,
+          onDestinationSelected: (index) {
             switch (index) {
               case 0:
                 context.go('/home');
@@ -50,16 +52,19 @@ class MainShell extends StatelessWidget {
                 break;
             }
           },
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFF3B82F6),
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.build_circle), label: 'Status'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.history), label: 'Riwayat'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
+          destinations: const [
+            NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home_rounded),
+                label: 'Beranda'),
+            NavigationDestination(
+                icon: Icon(Icons.build_circle_outlined),
+                selectedIcon: Icon(Icons.build_circle_rounded),
+                label: 'Status'),
+            NavigationDestination(
+                icon: Icon(Icons.history_rounded), label: 'Riwayat'),
+            NavigationDestination(
+                icon: Icon(Icons.person_outline_rounded), label: 'Akun'),
           ],
         ),
       ),

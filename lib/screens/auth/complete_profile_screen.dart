@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/user_profile_service.dart';
 import 'auth_visuals.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
@@ -38,6 +39,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
+        await UserProfileService.ensure(user);
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
@@ -69,9 +71,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF0B0E13),
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xFF0B0E13),
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: authInk),

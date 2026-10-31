@@ -117,9 +117,10 @@ void main() {
       await capture('splash');
       await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();
-      expect(find.text('Rawat Mobil Anda'), findsOneWidget);
+      expect(find.text('Drive Better, We Care'), findsOneWidget);
+      expect(find.text('Daftar Akun'), findsOneWidget);
       await capture('onboarding');
-      await tester.tap(find.text('Let’s Started'));
+      await tester.tap(find.text('Masuk'));
       await tester.pumpAndSettle();
       await capture('sign-in');
       expect(find.byType(TextField), findsNWidgets(2));
@@ -128,8 +129,8 @@ void main() {
       await tester.pump();
       expect(tester.widget<TextField>(find.byType(TextField).last).obscureText,
           isFalse);
-      await tester.ensureVisible(find.text('Forgot Password?'));
-      await tester.tap(find.text('Forgot Password?'));
+      await tester.ensureVisible(find.text('Lupa password?'));
+      await tester.tap(find.text('Lupa password?'));
       await tester.pumpAndSettle();
       expect(find.text('Reset target'), findsOneWidget);
     });

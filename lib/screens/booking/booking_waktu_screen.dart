@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/theme/app_colors.dart';
 import '../../models/booking_draft.dart';
 
 class BookingWaktuScreen extends StatefulWidget {
@@ -69,12 +70,13 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
                     onTap: () => setState(() => selectedTime = time),
                     child: Container(
                       decoration: BoxDecoration(
-                        color:
-                            isSelected ? const Color(0xFF3B82F6) : Colors.white,
+                        color: isSelected
+                            ? const Color(0xFFFF3B45)
+                            : AppColors.cardBg,
                         border: Border.all(
                             color: isSelected
-                                ? const Color(0xFF3B82F6)
-                                : Colors.grey[300]!),
+                                ? const Color(0xFFFF3B45)
+                                : AppColors.outline),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -83,7 +85,9 @@ class _BookingWaktuScreenState extends State<BookingWaktuScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: isSelected ? Colors.white : Colors.black,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textPrimary,
                           ),
                         ),
                       ),

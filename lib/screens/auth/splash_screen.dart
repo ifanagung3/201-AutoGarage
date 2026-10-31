@@ -1,7 +1,10 @@
-import 'dart:async';
+﻿import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../services/admin_access_service.dart';
 import 'auth_visuals.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,12 +15,36 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(seconds: 2), () {
-      if (mounted) context.go('/onboarding');
-    });
+    _timer = Timer(const Duration(milliseconds: 800), _navigate);
+  }
+
+  Future<void> _navigate() async {
+    if (!mounted) return;
+
+    if (Firebase.apps.isEmpty) {
+      context.go('/onboarding');
+      return;
+    }
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        context.go('/onboarding');
+        return;
+      }
+
+      // User already signed in — check role and redirect accordingly.
+      final isAdmin = await AdminAccessService.instance.isCurrentUserAdmin();
+      if (!mounted) return;
+      context.go(isAdmin ? '/admin' : '/home');
+    } catch (_) {
+      if (!mounted) return;
+      context.go('/onboarding');
+    }
   }
 
   @override
@@ -27,21 +54,21 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(width: 198, child: ReferenceArtwork(logo: true)),
-              const SizedBox(height: 20),
-              Text('201 AUTO GARAGE',
-                  style: GoogleFonts.poppins(
-                    fontSize: 23,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF4386CE),
-                  )),
-            ],
+  Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Scaffold(
+          backgroundColor: const Color(0xFF0B0E13),
+          body: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  width: 190,
+                  height: 190,
+                  child: ReferenceArtwork(logo: true),
+                ),
+              ],
+            ),
           ),
         ),
       );

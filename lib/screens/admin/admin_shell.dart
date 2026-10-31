@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/theme/app_colors.dart';
 
 class AdminShell extends StatefulWidget {
   final Widget child;
@@ -27,7 +28,7 @@ class _AdminShellState extends State<AdminShell> {
   void _showMoreMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: AppColors.darkNavy,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -50,13 +51,17 @@ class _AdminShellState extends State<AdminShell> {
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF97316).withValues(alpha: 0.15),
+                  color: const Color(0xFFFF3B45).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.attach_money, color: Color(0xFFF97316)),
+                child: const Icon(Icons.attach_money, color: Color(0xFFFF3B45)),
               ),
-              title: Text('Input Estimasi Biaya', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
-              subtitle: Text('Kelola dan sesuaikan estimasi biaya servis', style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 12)),
+              title: Text('Input Estimasi Biaya',
+                  style: GoogleFonts.poppins(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
+              subtitle: Text('Kelola dan sesuaikan estimasi biaya servis',
+                  style: GoogleFonts.poppins(
+                      color: Colors.grey[400], fontSize: 12)),
               onTap: () {
                 Navigator.pop(ctx);
                 context.go('/admin/estimasi');
@@ -72,8 +77,12 @@ class _AdminShellState extends State<AdminShell> {
                 ),
                 child: const Icon(Icons.local_offer, color: Color(0xFFEC4899)),
               ),
-              title: Text('Kelola Kode Promo', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
-              subtitle: Text('Tambah dan atur diskon promo pelanggan', style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 12)),
+              title: Text('Kelola Kode Promo',
+                  style: GoogleFonts.poppins(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
+              subtitle: Text('Tambah dan atur diskon promo pelanggan',
+                  style: GoogleFonts.poppins(
+                      color: Colors.grey[400], fontSize: 12)),
               onTap: () {
                 Navigator.pop(ctx);
                 context.go('/admin/promo');
@@ -101,7 +110,8 @@ class _AdminShellState extends State<AdminShell> {
         }
 
         final now = DateTime.now();
-        if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+        if (_lastPressedAt == null ||
+            now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
           _lastPressedAt = now;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -109,7 +119,7 @@ class _AdminShellState extends State<AdminShell> {
                 'Tekan sekali lagi untuk keluar dari Mode Admin',
                 style: GoogleFonts.poppins(color: Colors.white),
               ),
-              backgroundColor: const Color(0xFFF97316),
+              backgroundColor: const Color(0xFFFF3B45),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -118,11 +128,11 @@ class _AdminShellState extends State<AdminShell> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: AppColors.softBg,
         body: widget.child,
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B),
+            color: AppColors.darkNavy,
             border: Border(
               top: BorderSide(
                 color: Colors.white.withValues(alpha: 0.08),
@@ -139,23 +149,28 @@ class _AdminShellState extends State<AdminShell> {
           ),
           child: NavigationBarTheme(
             data: NavigationBarThemeData(
-              indicatorColor: const Color(0xFFF97316).withValues(alpha: 0.2),
+              indicatorColor: AppColors.accentRed.withValues(alpha: 0.18),
               labelTextStyle: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFFF97316));
+                  return GoogleFonts.poppins(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.accentRed);
                 }
-                return GoogleFonts.poppins(fontSize: 11, color: Colors.grey[400]);
+                return GoogleFonts.poppins(
+                    fontSize: 11, color: Colors.grey[400]);
               }),
               iconTheme: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return const IconThemeData(color: Color(0xFFF97316), size: 24);
+                  return const IconThemeData(
+                      color: AppColors.accentRed, size: 24);
                 }
                 return IconThemeData(color: Colors.grey[400], size: 22);
               }),
             ),
             child: NavigationBar(
               height: 68,
-              backgroundColor: const Color(0xFF1E293B),
+              backgroundColor: AppColors.darkNavy,
               selectedIndex: currentIndex > 3 ? 3 : currentIndex,
               onDestinationSelected: (index) {
                 switch (index) {
@@ -190,8 +205,12 @@ class _AdminShellState extends State<AdminShell> {
                   label: 'Servis',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.grid_view_rounded, color: currentIndex > 2 ? const Color(0xFFF97316) : Colors.grey[400]),
-                  selectedIcon: const Icon(Icons.grid_view_rounded, color: Color(0xFFF97316)),
+                  icon: Icon(Icons.grid_view_rounded,
+                      color: currentIndex > 2
+                          ? AppColors.accentRed
+                          : Colors.grey[400]),
+                  selectedIcon: const Icon(Icons.grid_view_rounded,
+                      color: AppColors.accentRed),
                   label: 'Lainnya',
                 ),
               ],

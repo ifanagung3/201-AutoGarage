@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import '../../core/theme/app_colors.dart';
 import '../../models/booking_model.dart';
 import '../../services/booking_service.dart';
 
@@ -9,13 +12,13 @@ class StatusServisScreen extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Menunggu':
-        return const Color(0xFFF59E0B);
+        return AppColors.textMuted;
       case 'Proses Pengecekan':
-        return const Color(0xFF06B6D4);
+        return const Color(0xFFB91C2C);
       case 'Sedang Dikerjakan':
-        return const Color(0xFF3B82F6);
+        return AppColors.accentRed;
       case 'Quality Check':
-        return const Color(0xFF8B5CF6);
+        return const Color(0xFF7F1D1D);
       case 'Selesai':
         return const Color(0xFF10B981);
       default:
@@ -25,47 +28,39 @@ class StatusServisScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dateFormat = DateFormat('d MMM y', 'id_ID');
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFC),
+      backgroundColor: AppColors.softBg,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF5B8DEF), Color(0xFF3872E0)],
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Status Servis',
                     style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
-                    'Pantau progres pengerjaan kendaraan secara real-time',
+                    'Pantau progres pengerjaan kendaraan Anda',
                     style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 12,
+                      color: AppColors.textMuted,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             // Status Stream Cards List
             Expanded(
@@ -74,8 +69,25 @@ class StatusServisScreen extends StatelessWidget {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                      child:
-                          CircularProgressIndicator(color: Color(0xFF5B8DEF)),
+                      child: CircularProgressIndicator(
+                        color: AppColors.accentRed,
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Text(
+                          'Gagal memuat status servis: ${snapshot.error}',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.red[700],
+                          ),
+                        ),
+                      ),
                     );
                   }
 
@@ -85,15 +97,18 @@ class StatusServisScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.assignment_outlined,
-                              size: 60, color: Colors.grey[400]),
+                          const Icon(
+                            Icons.assignment_outlined,
+                            size: 56,
+                            color: AppColors.outline,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             'Belum Ada Servis Aktif',
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF64748B),
+                              color: AppColors.textMuted,
                             ),
                           ),
                         ],
@@ -102,21 +117,27 @@ class StatusServisScreen extends StatelessWidget {
                   }
 
                   return ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: bookings.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 14),
                     itemBuilder: (context, index) {
                       final booking = bookings[index];
                       final statusColor = _getStatusColor(booking.status);
+                      final progress = booking.totalSteps == 0
+                          ? 0.0
+                          : (booking.currentStep / booking.totalSteps)
+                              .clamp(0.0, 1.0)
+                              .toDouble();
 
                       return Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.cardBg,
+                          border: Border.all(color: AppColors.outline),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
@@ -125,18 +146,19 @@ class StatusServisScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Header: vehicle name + status badge
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: Text(
-                                    booking.id,
+                                    booking.vehicleName,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF1E293B),
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -145,7 +167,7 @@ class StatusServisScreen extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: statusColor.withOpacity(0.1),
+                                    color: statusColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -159,20 +181,20 @@ class StatusServisScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 4),
+                            // Booking date + service name
                             Text(
-                              booking.vehicleName,
+                              '${booking.serviceName}${booking.serviceOption == null ? '' : ' • ${booking.serviceOption}'}',
                               style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF475569),
+                                fontSize: 13,
+                                color: AppColors.textMuted,
                               ),
                             ),
                             Text(
-                              '${booking.serviceName} • Plat: ${booking.vehiclePlat}',
+                              'Plat ${booking.vehiclePlat} • ${dateFormat.format(booking.bookingDate)} ${booking.bookingTime}',
                               style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: const Color(0xFF94A3B8),
+                                fontSize: 12,
+                                color: AppColors.textMuted,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -189,7 +211,7 @@ class StatusServisScreen extends StatelessWidget {
                                       'Progress Tahapan',
                                       style: GoogleFonts.poppins(
                                         fontSize: 12,
-                                        color: const Color(0xFF64748B),
+                                        color: AppColors.textMuted,
                                       ),
                                     ),
                                     Text(
@@ -206,9 +228,8 @@ class StatusServisScreen extends StatelessWidget {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: LinearProgressIndicator(
-                                    value: booking.currentStep /
-                                        booking.totalSteps,
-                                    backgroundColor: const Color(0xFFE2E8F0),
+                                    value: progress,
+                                    backgroundColor: AppColors.outline,
                                     valueColor: AlwaysStoppedAnimation<Color>(
                                         statusColor),
                                     minHeight: 8,
@@ -222,7 +243,10 @@ class StatusServisScreen extends StatelessWidget {
                             SizedBox(
                               width: double.infinity,
                               child: OutlinedButton(
-                                onPressed: () {},
+                                onPressed: () => context.push(
+                                  '/riwayat/detail',
+                                  extra: booking,
+                                ),
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(color: statusColor),
                                   shape: RoundedRectangleBorder(

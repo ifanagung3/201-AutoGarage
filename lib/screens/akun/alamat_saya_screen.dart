@@ -40,7 +40,7 @@ class AlamatSayaScreen extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
-          backgroundColor: const Color(0xFF3B82F6),
+          backgroundColor: const Color(0xFFFF3B45),
           child: const Icon(Icons.add),
         ),
       ),
@@ -57,7 +57,7 @@ class _AddressCard extends StatelessWidget {
     return Card(
       child: ListTile(
         leading: const CircleAvatar(
-            backgroundColor: Color(0xFF3B82F6),
+            backgroundColor: Color(0xFFFF3B45),
             child: Icon(Icons.location_on, color: Colors.white)),
         title: Text(label,
             style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),

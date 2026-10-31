@@ -16,24 +16,11 @@ class AuthService {
   /// Sign In with Email & Password
   Future<UserCredential> signInWithEmail(String email, String password) async {
     final cleanEmail = email.trim().toLowerCase();
-    UserCredential credential;
 
-    try {
-      credential = await _auth.signInWithEmailAndPassword(
-        email: cleanEmail,
-        password: password,
-      );
-    } on FirebaseAuthException catch (e) {
-      if ((e.code == 'user-not-found' || e.code == 'invalid-credential') &&
-          (cleanEmail == 'admin@autogarage.com' || cleanEmail.startsWith('admin@'))) {
-        credential = await _auth.createUserWithEmailAndPassword(
-          email: cleanEmail,
-          password: password.length >= 6 ? password : 'admin123',
-        );
-      } else {
-        rethrow;
-      }
-    }
+    final credential = await _auth.signInWithEmailAndPassword(
+      email: cleanEmail,
+      password: password,
+    );
 
     if (credential.user != null) {
       await UserProfileService.ensure(credential.user!);
@@ -88,6 +75,7 @@ class AuthService {
   Future<void> updateProfile({required String phone, required String address}) async {
     final uid = currentUid;
     if (uid != null) {
+      await UserProfileService.ensure(_auth.currentUser!);
       await _db.collection('users').doc(uid).update({
         'phone': phone.trim(),
         'address': address.trim(),

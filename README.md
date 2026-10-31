@@ -7,11 +7,9 @@
 
 ---
 
-## 📑 **DOKUMEN LAPORAN & PRESENTASI (MODUL 5 - KELOMPOK 6 EXACT STRUCTURE):**
+## 📑 **DOKUMEN LAPORAN (MODUL 5):**
 
-- 📊 **[Download Presentation Deck PPTX (Exact Kelompok 6 Format)](PRESENTASI_MODUL_5_KELOMPOK_6_EXACT_STYLE.pptx)**
 - 📖 **[Laporan Lengkap Modul 5 (Markdown)](DOCS/LAPORAN_MODUL_5.md)**
-- 📄 **[Download Laporan PDF](LAPORAN_MODUL_5_201_AUTO_GARAGE.pdf)**
 - 🎨 **[Desain UI/UX Figma](https://www.figma.com/file/201-AutoGarage-UI-Design)**
 
 ---
@@ -70,10 +68,33 @@ flutter pub get
 flutter run
 ```
 
+Untuk menjalankan API prediksi Python dari **perangkat Android fisik**, jalankan
+server di komputer dengan `python_backend/app.py`, pastikan perangkat dan
+komputer berada di jaringan yang sama, lalu gunakan alamat IPv4 komputer:
+
+```powershell
+flutter run -d <device-id> --dart-define=ML_API_URL=http://<IP-KOMPUTER>:5000/predict
+```
+
+Contoh, ganti `192.168.1.10` dengan alamat IPv4 komputer yang terlihat di
+`ipconfig`. Izinkan koneksi masuk ke port `5000` di Windows Firewall bila
+diperlukan. Untuk emulator Android, alamat default `10.0.2.2` tetap digunakan.
+HTTP tanpa enkripsi hanya diizinkan untuk build debug Android; gunakan HTTPS
+untuk deployment.
+
 ### 2. Jalankan Unit Test:
 ```bash
-flutter test test/random_forest_service_test.dart
+flutter test
 ```
+
+### 3. Uji Aturan Firestore secara Lokal:
+```bash
+npm install --prefix firestore_test
+npx firebase-tools emulators:exec --only firestore --project demo-auto-garage --config firebase.json "npm --prefix firestore_test test"
+```
+
+Pengujian menggunakan project demo dan emulator lokal; perintah ini tidak
+mengubah data Firebase produksi. Emulator Firestore memerlukan Java.
 
 ---
 
