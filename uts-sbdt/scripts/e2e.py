@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 import subprocess
+import platform
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -53,8 +54,10 @@ def sql_json(mode,service,statement):
 
 def main(mode):
     env=read_env();out=ROOT/'evidence';out.mkdir(exist_ok=True)
-    report={'environment':mode,'source_sha':os.getenv('GITHUB_SHA','local'),
-            'run_url':os.getenv('GITHUB_SERVER_URL','https://github.com')+'/'+os.getenv('GITHUB_REPOSITORY','ifanagung3/201-AutoGarage')+'/actions/runs/'+os.getenv('GITHUB_RUN_ID','local'),
+    report={'environment':mode,'source_sha':os.getenv('GITHUB_SHA') or command(['git','rev-parse','HEAD']).stdout.strip(),
+            'source_dirty':bool(command(['git','status','--porcelain','--untracked-files=no']).stdout.strip()),
+            'runtime':platform.platform(),
+            'run_url':('https://github.com/'+os.getenv('GITHUB_REPOSITORY','ifanagung3/201-AutoGarage')+'/actions/runs/'+os.environ['GITHUB_RUN_ID']) if os.getenv('GITHUB_RUN_ID') else None,
             'started_at':datetime.now(timezone.utc).isoformat(),'checks':[]}
     def passed(name,observed):
         report['checks'].append({'name':name,'passed':True,'observed':observed})
@@ -132,7 +135,7 @@ def main(mode):
                 'pv_before':before_pvc['spec']['volumeName'],'pv_after':after_pvc['spec']['volumeName'],
                 'record_after':survived})
             wait_until(lambda:session.get(BASE+'/ready',timeout=10).status_code==200,'API recovery')
-            access=token(env)
+            access=wait_until(lambda:token(env),'SSO database reconnection',60)
             after=session.post(BASE+'/predict',json=PAYLOAD,headers=headers(access),timeout=30)
             assert after.status_code==200,after.text
             post_id=after.json()['id']
