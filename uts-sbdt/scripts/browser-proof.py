@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 from datetime import datetime,timezone
 from playwright.sync_api import sync_playwright,expect
 from bootstrap import ROOT,read_env
@@ -24,8 +25,10 @@ def main(mode):
         page.screenshot(path=str(out/f'{mode}-sso-success.png'),full_page=True)
         page.locator('#predict').click()
         expect(page.locator('#saved')).to_contain_text('Tersimpan di primary',timeout=30000)
+        expect(page.locator('#predict')).to_be_enabled(timeout=15000)
+        record_id=re.search(r'#(\d+)',page.locator('#saved').inner_text()).group(1)
         expect(page.locator('#source')).to_contain_text('Sumber pembacaan: replica',timeout=15000)
-        expect(page.locator('#history tr').first).to_be_visible(timeout=15000)
+        expect(page.locator('#history td:first-child').filter(has_text=re.compile('^'+record_id+'$'))).to_be_visible(timeout=15000)
         page.screenshot(path=str(out/f'{mode}-inference-history.png'),full_page=True)
         page.locator('section.card').nth(1).screenshot(path=str(out/f'{mode}-inference-result.png'))
         page.locator('section.card').nth(2).screenshot(path=str(out/f'{mode}-history-table.png'))
