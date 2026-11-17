@@ -1,0 +1,11 @@
+car_brand,car_model,car_year,service_type,mileage,component_count,estimated_cost,estimated_duration
+Toyota,Avanza,2018,Tune Up,75000,5,1150000,3.8
+Toyota,Avanza,2020,Servis Rutin,35000,2,250000,1.2
+Honda,Jazz,2019,Tune Up,50000,4,950000,3.0
+Honda,HR-V,2021,AC Service,28000,3,450000,2.0
+Daihatsu,Xenia,2017,Servis Rutin,85000,3,300000,1.5
+Daihatsu,Terios,2019,Ganti Ban,60000,4,1800000,1.0
+Mitsubishi,Xpander,2020,Tune Up,42000,3,850000,2.5
+Suzuki,Ertiga,2018,Kaki-kaki,95000,6,1200000,4.0
+Toyota,Innova,2016,Overhaul Mesin,140000,8,4500000,8.5
+Nissan,Grand Livina,2015,AC Service,110000,4,650000,2.5

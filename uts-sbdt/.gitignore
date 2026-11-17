@@ -1,0 +1,7 @@
+.env
+keycloak/realm.generated.json
+backend/saved_models/
+evidence/
+__pycache__/
+.pytest_cache/
+*.pyc

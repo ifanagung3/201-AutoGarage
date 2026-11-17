@@ -1,0 +1,177 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: api-config, namespace: autogarage}
+data:
+  DB_NAME: autogarage
+  DB_WRITE_HOST: postgres-primary
+  DB_READ_HOST: postgres-replica
+  OIDC_ISSUER: http://auth.lokal:8080/realms/autogarage
+  OIDC_JWKS_URL: http://keycloak:8080/realms/autogarage/protocol/openid-connect/certs
+---
+apiVersion: v1
+kind: Service
+metadata: {name: postgres-primary-headless, namespace: autogarage}
+spec:
+  clusterIP: None
+  selector: {app: postgres-primary}
+  ports: [{port: 5432, name: postgres}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: postgres-primary, namespace: autogarage}
+spec:
+  selector: {app: postgres-primary}
+  ports: [{port: 5432, name: postgres}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: postgres-replica-headless, namespace: autogarage}
+spec:
+  clusterIP: None
+  selector: {app: postgres-replica}
+  ports: [{port: 5432, name: postgres}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: postgres-replica, namespace: autogarage}
+spec:
+  selector: {app: postgres-replica}
+  ports: [{port: 5432, name: postgres}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: postgres-primary, namespace: autogarage}
+spec:
+  serviceName: postgres-primary-headless
+  replicas: 1
+  selector: {matchLabels: {app: postgres-primary}}
+  template:
+    metadata: {labels: {app: postgres-primary}}
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: postgres
+          image: postgres:16.8
+          args: [postgres, -c, wal_level=replica, -c, max_wal_senders=6, -c, wal_keep_size=256MB]
+          envFrom: [{secretRef: {name: app-secrets}}]
+          env:
+            - {name: POSTGRES_USER, value: postgres}
+            - {name: POSTGRES_DB, value: autogarage}
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+          ports: [{containerPort: 5432}]
+          readinessProbe:
+            exec: {command: [pg_isready, -U, postgres, -d, autogarage]}
+            periodSeconds: 5
+          resources: {requests: {cpu: 100m, memory: 128Mi}, limits: {memory: 768Mi}}
+          volumeMounts:
+            - {name: pgdata, mountPath: /var/lib/postgresql/data}
+            - {name: scripts, mountPath: /docker-entrypoint-initdb.d/010_init.sh, subPath: init-primary.sh}
+            - {name: scripts, mountPath: /opt/autogarage/001_schema.sql, subPath: 001_schema.sql}
+      volumes:
+        - name: scripts
+          configMap: {name: database-scripts, defaultMode: 365}
+  volumeClaimTemplates:
+    - metadata: {name: pgdata}
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: standard
+        resources: {requests: {storage: 1Gi}}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: postgres-replica, namespace: autogarage}
+spec:
+  serviceName: postgres-replica-headless
+  replicas: 1
+  selector: {matchLabels: {app: postgres-replica}}
+  template:
+    metadata: {labels: {app: postgres-replica}}
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16.8
+          command: [bash, /scripts/start-replica.sh]
+          envFrom: [{secretRef: {name: app-secrets}}]
+          env: [{name: PGDATA, value: /var/lib/postgresql/data/pgdata}]
+          ports: [{containerPort: 5432}]
+          readinessProbe:
+            exec: {command: [pg_isready, -U, postgres, -d, autogarage]}
+            periodSeconds: 5
+          resources: {requests: {cpu: 100m, memory: 128Mi}, limits: {memory: 768Mi}}
+          volumeMounts:
+            - {name: pgdata, mountPath: /var/lib/postgresql/data}
+            - {name: scripts, mountPath: /scripts/start-replica.sh, subPath: start-replica.sh}
+      volumes:
+        - name: scripts
+          configMap: {name: database-scripts, defaultMode: 365}
+  volumeClaimTemplates:
+    - metadata: {name: pgdata}
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: standard
+        resources: {requests: {storage: 1Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: backend, namespace: autogarage}
+spec: {selector: {app: backend}, ports: [{port: 8000, targetPort: 8000}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: backend, namespace: autogarage}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: backend}}
+  template:
+    metadata: {labels: {app: backend}}
+    spec:
+      containers:
+        - name: api
+          image: autogarage-uts:e2e
+          imagePullPolicy: Never
+          envFrom: [{configMapRef: {name: api-config}}, {secretRef: {name: app-secrets}}]
+          ports: [{containerPort: 8000}]
+          startupProbe: {httpGet: {path: /health, port: 8000}, failureThreshold: 60, periodSeconds: 5}
+          readinessProbe: {httpGet: {path: /ready, port: 8000}, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /health, port: 8000}, periodSeconds: 10}
+          resources: {requests: {cpu: 100m, memory: 256Mi}, limits: {memory: 768Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: keycloak, namespace: autogarage}
+spec: {selector: {app: keycloak}, ports: [{port: 8080, targetPort: 8080}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: keycloak, namespace: autogarage}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: keycloak}}
+  template:
+    metadata: {labels: {app: keycloak}}
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.1.4
+          args: [start-dev, --import-realm, --hostname=http://auth.lokal:8080, --proxy-headers=xforwarded]
+          envFrom: [{secretRef: {name: app-secrets}}]
+          env:
+            - {name: KC_DB, value: postgres}
+            - {name: KC_DB_URL, value: 'jdbc:postgresql://postgres-primary:5432/keycloak'}
+            - {name: KC_DB_USERNAME, value: keycloak}
+            - name: KC_DB_PASSWORD
+              valueFrom: {secretKeyRef: {name: app-secrets, key: KEYCLOAK_DB_PASSWORD}}
+            - {name: KC_BOOTSTRAP_ADMIN_USERNAME, value: admin}
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              valueFrom: {secretKeyRef: {name: app-secrets, key: KEYCLOAK_ADMIN_PASSWORD}}
+            - {name: KC_HEALTH_ENABLED, value: 'true'}
+            - {name: JAVA_OPTS_APPEND, value: '-Xms128m -Xmx384m'}
+          ports: [{containerPort: 8080}, {containerPort: 9000}]
+          startupProbe: {httpGet: {path: /health/ready, port: 9000}, failureThreshold: 90, periodSeconds: 5}
+          readinessProbe: {httpGet: {path: /health/ready, port: 9000}, periodSeconds: 5}
+          resources: {requests: {cpu: 250m, memory: 512Mi}, limits: {memory: 1Gi}}
+          volumeMounts:
+            - {name: realm, mountPath: /opt/keycloak/data/import/autogarage.json, subPath: realm.json}
+      volumes:
+        - name: realm
+          secret: {secretName: keycloak-realm}

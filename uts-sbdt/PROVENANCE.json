@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/ifanagung3/201-AutoGarage",
+  "base_commit": "60dd5336a2ad90443bad4a5f471de5ffb498da1d",
+  "dataset_source": "python_backend/dataset_bengkel.csv",
+  "dataset_blob_sha": "4805b3fa7f882eeb65b4cc4674afc7db26080c04",
+  "training_source": "python_backend/train_model.py",
+  "adaptation": "Six features, two independent RandomForest pipelines, 100 trees, seed 42; added manifest and holdout MAE; no fallback inference",
+  "author": "Ifan Agung Arisadi",
+  "nim": "20230801162"
+}
