@@ -15,6 +15,7 @@ def main(mode):
         page.locator('#login').click()
         expect(page.locator('#username')).to_be_visible(timeout=30000)
         page.screenshot(path=str(out/f'{mode}-sso-login.png'),full_page=True)
+        page.locator('#kc-form-login').screenshot(path=str(out/f'{mode}-sso-form.png'))
         page.locator('#username').fill('ifan')
         page.locator('#password').fill(env['DEMO_PASSWORD'])
         page.locator('#kc-login').click()
@@ -26,6 +27,8 @@ def main(mode):
         expect(page.locator('#source')).to_contain_text('Sumber pembacaan: replica',timeout=15000)
         expect(page.locator('#history tr').first).to_be_visible(timeout=15000)
         page.screenshot(path=str(out/f'{mode}-inference-history.png'),full_page=True)
+        page.locator('section.card').nth(1).screenshot(path=str(out/f'{mode}-inference-result.png'))
+        page.locator('section.card').nth(2).screenshot(path=str(out/f'{mode}-history-table.png'))
         proof={'environment':mode,'time':datetime.now(timezone.utc).isoformat(),
                'flow':'Keycloak authorization code + PKCE S256; public web client',
                'name':page.locator('#account').inner_text(),'cost':page.locator('#cost').inner_text(),
