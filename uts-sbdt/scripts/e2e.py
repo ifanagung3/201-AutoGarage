@@ -54,8 +54,9 @@ def sql_json(mode,service,statement):
 
 def main(mode):
     env=read_env();out=ROOT/'evidence';out.mkdir(exist_ok=True)
-    report={'environment':mode,'source_sha':os.getenv('GITHUB_SHA') or command(['git','rev-parse','HEAD']).stdout.strip(),
-            'source_dirty':bool(command(['git','status','--porcelain','--untracked-files=no']).stdout.strip()),
+    git_args=['git','-c','safe.directory='+str(ROOT.parent)]
+    report={'environment':mode,'source_sha':os.getenv('GITHUB_SHA') or command(git_args+['rev-parse','HEAD']).stdout.strip(),
+            'source_dirty':bool(command(git_args+['status','--porcelain','--untracked-files=no']).stdout.strip()),
             'runtime':platform.platform(),
             'run_url':('https://github.com/'+os.getenv('GITHUB_REPOSITORY','ifanagung3/201-AutoGarage')+'/actions/runs/'+os.environ['GITHUB_RUN_ID']) if os.getenv('GITHUB_RUN_ID') else None,
             'started_at':datetime.now(timezone.utc).isoformat(),'checks':[]}

@@ -40,6 +40,6 @@ kubectl -n autogarage get pvc > evidence/kubernetes-pvc.txt
 kubectl -n autogarage get sts,svc,ingress > evidence/kubernetes-objects.txt
 kubectl -n autogarage get events --sort-by=.lastTimestamp > evidence/kubernetes-events.txt
 kubectl -n autogarage logs postgres-primary-0 > evidence/kubernetes-primary-logs.txt
-git rev-parse HEAD > evidence/source-sha.txt
+git -c safe.directory="$(pwd)/.." rev-parse HEAD > evidence/source-sha.txt
 date -u +%FT%TZ > evidence/captured-at.txt
 echo 'Local lab integration tests completed successfully.'
