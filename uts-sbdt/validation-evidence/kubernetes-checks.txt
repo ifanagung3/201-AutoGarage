@@ -1,0 +1,38 @@
+PASS Readiness and OIDC discovery {"issuer": "http://auth.lokal:8080/realms/autogarage", "ready": 200}
+PASS Keycloak access token accepted via JWKS {"sub": "512d9767-7166-45bc-aae0-f98876c5db20", "name": "Ifan Agung Arisadi", "username": "ifan", "authentication": "Keycloak OIDC / JWKS"}
+PASS Authentication and authorization rejection {"missing": 401, "invalid_signature": 401, "wrong_audience": 401, "missing_role": 403}
+PASS Input and owner spoofing rejected {"negative_mileage": 422, "extra_user_id": 422}
+PASS Real model inference committed on primary {"response": {"id": 1, "created_at": "2026-11-17T09:11:41.803359+00:00", "estimated_cost": 1165000, "estimated_duration": 3.4, "model_version": "autogarage-rf-v1-7bfb605fb173", "status": "success"}, "database_header": "primary"}
+PASS History read from replica {"database_header": "replica", "record": {"id": 1, "input_payload": {"mileage": 75000, "car_year": 2018, "car_brand": "Toyota", "car_model": "Avanza", "service_type": "Tune Up", "component_count": 5}, "estimated_cost": 1165000.0, "estimated_duration": 3.4, "model_version": "autogarage-rf-v1-7bfb605fb173", "created_at": "2026-11-17T09:11:41.803359+00:00"}}
+PASS Cross-user history isolated {"other_user_visible_ids": []}
+PASS Direct SQL replication proof {"postgres-primary": {"identity": [{"in_recovery": false, "server_version": "PostgreSQL 16.8 (Debian 16.8-1.pgdg120+1) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit"}], "record": [{"id": 1, "user_id": "512d9767-7166-45bc-aae0-f98876c5db20", "estimated_cost": 1165000.0, "estimated_duration": 3.4, "model_version": "autogarage-rf-v1-7bfb605fb173"}]}, "postgres-replica": {"identity": [{"in_recovery": true, "server_version": "PostgreSQL 16.8 (Debian 16.8-1.pgdg120+1) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit"}], "record": [{"id": 1, "user_id": "512d9767-7166-45bc-aae0-f98876c5db20", "estimated_cost": 1165000.0, "estimated_duration": 3.4, "model_version": "autogarage-rf-v1-7bfb605fb173"}]}, "streaming": [{"application_name": "autogarage_replica", "state": "streaming", "sync_state": "async"}]}
+PASS Standby rejects write transaction {"returncode": 1, "stderr": "ERROR:  cannot set transaction read-write mode during recovery\ncommand terminated with exit code 1"}
+PASS Primary pod deletion preserves record and PVC {"pod_uid_before": "a9b5c83f-3ec6-47b8-96be-0a87ddef7895", "pod_uid_after": "92592c13-b2a9-49a2-a475-548627ec8e32", "pvc_uid_before": "f5cbb5d6-1465-4090-87b7-6757806655e7", "pvc_uid_after": "f5cbb5d6-1465-4090-87b7-6757806655e7", "pv_before": "pvc-f5cbb5d6-1465-4090-87b7-6757806655e7", "pv_after": "pvc-f5cbb5d6-1465-4090-87b7-6757806655e7", "record_after": [{"id": 1, "estimated_cost": 1165000.0, "model_version": "autogarage-rf-v1-7bfb605fb173"}]}
+PASS Writes and replication recover after restart {"new_record_id": 2, "status": 200}
+NAME                            READY   STATUS    RESTARTS      AGE     IP            NODE                       NOMINATED NODE   READINESS GATES
+pod/backend-f64dbfbd5-m9rfd     1/1     Running   0             2m40s   10.244.0.4    autogarage-control-plane   <none>           <none>
+pod/ingress-6bffbf78f9-44r2b    1/1     Running   0             2m40s   10.244.0.2    autogarage-control-plane   <none>           <none>
+pod/keycloak-7c9fdd5ffb-68jpt   1/1     Running   3 (68s ago)   2m40s   10.244.0.3    autogarage-control-plane   <none>           <none>
+pod/postgres-primary-0          1/1     Running   0             9s      10.244.0.12   autogarage-control-plane   <none>           <none>
+pod/postgres-replica-0          1/1     Running   0             2m40s   10.244.0.11   autogarage-control-plane   <none>           <none>
+
+NAME                                READY   AGE     CONTAINERS   IMAGES
+statefulset.apps/postgres-primary   1/1     2m40s   postgres     postgres:16.8
+statefulset.apps/postgres-replica   1/1     2m40s   postgres     postgres:16.8
+
+NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE     SELECTOR
+service/backend                     ClusterIP   10.96.72.62     <none>        8000/TCP       2m40s   app=backend
+service/ingress                     NodePort    10.96.26.152    <none>        80:30080/TCP   2m40s   app=ingress
+service/keycloak                    ClusterIP   10.96.178.209   <none>        8080/TCP       2m40s   app=keycloak
+service/postgres-primary            ClusterIP   10.96.23.86     <none>        5432/TCP       2m40s   app=postgres-primary
+service/postgres-primary-headless   ClusterIP   None            <none>        5432/TCP       2m40s   app=postgres-primary
+service/postgres-replica            ClusterIP   10.96.111.185   <none>        5432/TCP       2m40s   app=postgres-replica
+service/postgres-replica-headless   ClusterIP   None            <none>        5432/TCP       2m40s   app=postgres-replica
+
+NAME                                              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE     VOLUMEMODE
+persistentvolumeclaim/pgdata-postgres-primary-0   Bound    pvc-f5cbb5d6-1465-4090-87b7-6757806655e7   1Gi        RWO            standard       <unset>                 2m40s   Filesystem
+persistentvolumeclaim/pgdata-postgres-replica-0   Bound    pvc-fc27dd45-99cd-43d6-99a2-3319b8db39a1   1Gi        RWO            standard       <unset>                 2m40s   Filesystem
+
+NAME                                   CLASS     HOSTS                  ADDRESS   PORTS   AGE
+ingress.networking.k8s.io/autogarage   traefik   auth.lokal,api.lokal             80      2m40s
+

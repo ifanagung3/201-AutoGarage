@@ -1,0 +1,6 @@
+NAME                                IMAGE                              COMMAND                  SERVICE            CREATED          STATUS                    PORTS
+autogarage-uts-backend-1            autogarage-uts:e2e                 "uvicorn app.main:ap…"   backend            20 seconds ago   Up 8 seconds              8000/tcp
+autogarage-uts-gateway-1            nginx:1.27.4-alpine                "/docker-entrypoint.…"   gateway            20 seconds ago   Up 8 seconds              80/tcp, 127.0.0.1:8080->8080/tcp
+autogarage-uts-keycloak-1           quay.io/keycloak/keycloak:26.1.4   "/opt/keycloak/bin/k…"   keycloak           20 seconds ago   Up 13 seconds             8080/tcp, 8443/tcp, 9000/tcp
+autogarage-uts-postgres-primary-1   postgres:16.8                      "docker-entrypoint.s…"   postgres-primary   20 seconds ago   Up 19 seconds (healthy)   5432/tcp
+autogarage-uts-postgres-replica-1   postgres:16.8                      "bash /scripts/start…"   postgres-replica   20 seconds ago   Up 13 seconds (healthy)   5432/tcp

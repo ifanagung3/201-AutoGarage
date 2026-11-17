@@ -1,0 +1,15 @@
+NAME                                READY   AGE
+statefulset.apps/postgres-primary   1/1     2m45s
+statefulset.apps/postgres-replica   1/1     2m45s
+
+NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+service/backend                     ClusterIP   10.96.72.62     <none>        8000/TCP       2m45s
+service/ingress                     NodePort    10.96.26.152    <none>        80:30080/TCP   2m45s
+service/keycloak                    ClusterIP   10.96.178.209   <none>        8080/TCP       2m45s
+service/postgres-primary            ClusterIP   10.96.23.86     <none>        5432/TCP       2m45s
+service/postgres-primary-headless   ClusterIP   None            <none>        5432/TCP       2m45s
+service/postgres-replica            ClusterIP   10.96.111.185   <none>        5432/TCP       2m45s
+service/postgres-replica-headless   ClusterIP   None            <none>        5432/TCP       2m45s
+
+NAME                                   CLASS     HOSTS                  ADDRESS   PORTS   AGE
+ingress.networking.k8s.io/autogarage   traefik   auth.lokal,api.lokal             80      2m45s

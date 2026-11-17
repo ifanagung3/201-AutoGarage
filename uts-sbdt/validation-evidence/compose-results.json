@@ -1,0 +1,147 @@
+{
+  "environment": "compose",
+  "source_sha": "3d3154aa69e89c3de7a9880b0cede128e54d09a6",
+  "source_dirty": false,
+  "runtime": "Linux-6.8.0-147-generic-aarch64-with-glibc2.39",
+  "run_url": null,
+  "started_at": "2026-11-17T09:07:56.633301+00:00",
+  "checks": [
+    {
+      "name": "Readiness and OIDC discovery",
+      "passed": true,
+      "observed": {
+        "issuer": "http://auth.lokal:8080/realms/autogarage",
+        "ready": 200
+      }
+    },
+    {
+      "name": "Keycloak access token accepted via JWKS",
+      "passed": true,
+      "observed": {
+        "sub": "7f845852-470a-4186-8d34-1f5257425740",
+        "name": "Ifan Agung Arisadi",
+        "username": "ifan",
+        "authentication": "Keycloak OIDC / JWKS"
+      }
+    },
+    {
+      "name": "Authentication and authorization rejection",
+      "passed": true,
+      "observed": {
+        "missing": 401,
+        "invalid_signature": 401,
+        "wrong_audience": 401,
+        "missing_role": 403
+      }
+    },
+    {
+      "name": "Input and owner spoofing rejected",
+      "passed": true,
+      "observed": {
+        "negative_mileage": 422,
+        "extra_user_id": 422
+      }
+    },
+    {
+      "name": "Real model inference committed on primary",
+      "passed": true,
+      "observed": {
+        "response": {
+          "id": 4,
+          "created_at": "2026-11-17T09:08:03.504061+00:00",
+          "estimated_cost": 1165000,
+          "estimated_duration": 3.4,
+          "model_version": "autogarage-rf-v1-7bfb605fb173",
+          "status": "success"
+        },
+        "database_header": "primary"
+      }
+    },
+    {
+      "name": "History read from replica",
+      "passed": true,
+      "observed": {
+        "database_header": "replica",
+        "record": {
+          "id": 4,
+          "input_payload": {
+            "mileage": 75000,
+            "car_year": 2018,
+            "car_brand": "Toyota",
+            "car_model": "Avanza",
+            "service_type": "Tune Up",
+            "component_count": 5
+          },
+          "estimated_cost": 1165000.0,
+          "estimated_duration": 3.4,
+          "model_version": "autogarage-rf-v1-7bfb605fb173",
+          "created_at": "2026-11-17T09:08:03.504061+00:00"
+        }
+      }
+    },
+    {
+      "name": "Cross-user history isolated",
+      "passed": true,
+      "observed": {
+        "other_user_visible_ids": []
+      }
+    },
+    {
+      "name": "Direct SQL replication proof",
+      "passed": true,
+      "observed": {
+        "postgres-primary": {
+          "identity": [
+            {
+              "in_recovery": false,
+              "server_version": "PostgreSQL 16.8 (Debian 16.8-1.pgdg120+1) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit"
+            }
+          ],
+          "record": [
+            {
+              "id": 4,
+              "user_id": "7f845852-470a-4186-8d34-1f5257425740",
+              "estimated_cost": 1165000.0,
+              "estimated_duration": 3.4,
+              "model_version": "autogarage-rf-v1-7bfb605fb173"
+            }
+          ]
+        },
+        "postgres-replica": {
+          "identity": [
+            {
+              "in_recovery": true,
+              "server_version": "PostgreSQL 16.8 (Debian 16.8-1.pgdg120+1) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit"
+            }
+          ],
+          "record": [
+            {
+              "id": 4,
+              "user_id": "7f845852-470a-4186-8d34-1f5257425740",
+              "estimated_cost": 1165000.0,
+              "estimated_duration": 3.4,
+              "model_version": "autogarage-rf-v1-7bfb605fb173"
+            }
+          ]
+        },
+        "streaming": [
+          {
+            "application_name": "autogarage_replica",
+            "state": "streaming",
+            "sync_state": "async"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Standby rejects write transaction",
+      "passed": true,
+      "observed": {
+        "returncode": 1,
+        "stderr": "ERROR:  cannot set transaction read-write mode during recovery"
+      }
+    }
+  ],
+  "passed": true,
+  "finished_at": "2026-11-17T09:08:04.209133+00:00"
+}

@@ -1,0 +1,6 @@
+NAME                        READY   RESTARTS
+backend-f64dbfbd5-m9rfd     true    0
+ingress-6bffbf78f9-44r2b    true    0
+keycloak-7c9fdd5ffb-68jpt   true    3
+postgres-primary-0          true    0
+postgres-replica-0          true    0

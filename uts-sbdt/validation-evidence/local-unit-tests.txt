@@ -1,0 +1,34 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-8.3.5, pluggy-1.7.0 -- /Users/user/Documents/Codex/2026-11-17/referenced-chatgpt-conversation-this-is-an/work/uts-venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/user/Documents/Codex/2026-11-17/referenced-chatgpt-conversation-this-is-an
+plugins: anyio-4.16.0
+collecting ... collected 18 items
+
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_rsa_signature_and_claims PASSED [  5%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_reject_invalid_claims[change0] PASSED [ 11%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_reject_invalid_claims[change1] PASSED [ 16%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_reject_invalid_claims[change2] PASSED [ 22%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_reject_invalid_claims[change3] PASSED [ 27%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_reject_wrong_signature PASSED [ 33%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_required_claims[exp] PASSED [ 38%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_required_claims[iss] PASSED [ 44%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_required_claims[aud] PASSED [ 50%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_required_claims[sub] PASSED [ 55%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_reject_missing_role PASSED [ 61%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_no_token_rejected_before_database PASSED [ 66%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_pkce_rfc7636_vector PASSED [ 72%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_real_random_forest_training_and_missing_artifact PASSED [ 77%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_invalid_payload_rejected[change0] PASSED [ 83%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_invalid_payload_rejected[change1] PASSED [ 88%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_invalid_payload_rejected[change2] PASSED [ 94%]
+work/201-AutoGarage-repository/uts-sbdt/tests/test_security_and_model.py::test_model_unavailable_fails_closed PASSED [100%]
+
+=============================== warnings summary ===============================
+work/uts-venv/lib/python3.12/site-packages/starlette/testclient.py:37
+  /Users/user/Documents/Codex/2026-11-17/referenced-chatgpt-conversation-this-is-an/work/uts-venv/lib/python3.12/site-packages/starlette/testclient.py:37: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /Users/user/Documents/Codex/2026-11-17/referenced-chatgpt-conversation-this-is-an/work/201-AutoGarage-repository/uts-sbdt/evidence/local-unit-tests.xml -
+======================== 18 passed, 1 warning in 4.85s =========================

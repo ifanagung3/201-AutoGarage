@@ -1,0 +1,16 @@
+PASS Readiness and OIDC discovery {"issuer": "http://auth.lokal:8080/realms/autogarage", "ready": 200}
+PASS Keycloak access token accepted via JWKS {"sub": "7f845852-470a-4186-8d34-1f5257425740", "name": "Ifan Agung Arisadi", "username": "ifan", "authentication": "Keycloak OIDC / JWKS"}
+PASS Authentication and authorization rejection {"missing": 401, "invalid_signature": 401, "wrong_audience": 401, "missing_role": 403}
+PASS Input and owner spoofing rejected {"negative_mileage": 422, "extra_user_id": 422}
+PASS Real model inference committed on primary {"response": {"id": 4, "created_at": "2026-11-17T09:08:03.504061+00:00", "estimated_cost": 1165000, "estimated_duration": 3.4, "model_version": "autogarage-rf-v1-7bfb605fb173", "status": "success"}, "database_header": "primary"}
+PASS History read from replica {"database_header": "replica", "record": {"id": 4, "input_payload": {"mileage": 75000, "car_year": 2018, "car_brand": "Toyota", "car_model": "Avanza", "service_type": "Tune Up", "component_count": 5}, "estimated_cost": 1165000.0, "estimated_duration": 3.4, "model_version": "autogarage-rf-v1-7bfb605fb173", "created_at": "2026-11-17T09:08:03.504061+00:00"}}
+PASS Cross-user history isolated {"other_user_visible_ids": []}
+PASS Direct SQL replication proof {"postgres-primary": {"identity": [{"in_recovery": false, "server_version": "PostgreSQL 16.8 (Debian 16.8-1.pgdg120+1) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit"}], "record": [{"id": 4, "user_id": "7f845852-470a-4186-8d34-1f5257425740", "estimated_cost": 1165000.0, "estimated_duration": 3.4, "model_version": "autogarage-rf-v1-7bfb605fb173"}]}, "postgres-replica": {"identity": [{"in_recovery": true, "server_version": "PostgreSQL 16.8 (Debian 16.8-1.pgdg120+1) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit"}], "record": [{"id": 4, "user_id": "7f845852-470a-4186-8d34-1f5257425740", "estimated_cost": 1165000.0, "estimated_duration": 3.4, "model_version": "autogarage-rf-v1-7bfb605fb173"}]}, "streaming": [{"application_name": "autogarage_replica", "state": "streaming", "sync_state": "async"}]}
+PASS Standby rejects write transaction {"returncode": 1, "stderr": "ERROR:  cannot set transaction read-write mode during recovery"}
+NAME                                IMAGE                              COMMAND                  SERVICE            CREATED          STATUS                    PORTS
+autogarage-uts-backend-1            autogarage-uts:e2e                 "uvicorn app.main:ap…"   backend            20 seconds ago   Up 8 seconds              8000/tcp
+autogarage-uts-gateway-1            nginx:1.27.4-alpine                "/docker-entrypoint.…"   gateway            20 seconds ago   Up 8 seconds              80/tcp, 127.0.0.1:8080->8080/tcp
+autogarage-uts-keycloak-1           quay.io/keycloak/keycloak:26.1.4   "/opt/keycloak/bin/k…"   keycloak           20 seconds ago   Up 13 seconds             8080/tcp, 8443/tcp, 9000/tcp
+autogarage-uts-postgres-primary-1   postgres:16.8                      "docker-entrypoint.s…"   postgres-primary   20 seconds ago   Up 19 seconds (healthy)   5432/tcp
+autogarage-uts-postgres-replica-1   postgres:16.8                      "bash /scripts/start…"   postgres-replica   20 seconds ago   Up 13 seconds (healthy)   5432/tcp
+

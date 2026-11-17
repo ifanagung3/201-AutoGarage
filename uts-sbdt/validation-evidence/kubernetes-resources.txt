@@ -1,0 +1,26 @@
+NAME                            READY   STATUS    RESTARTS      AGE     IP            NODE                       NOMINATED NODE   READINESS GATES
+pod/backend-f64dbfbd5-m9rfd     1/1     Running   0             2m40s   10.244.0.4    autogarage-control-plane   <none>           <none>
+pod/ingress-6bffbf78f9-44r2b    1/1     Running   0             2m40s   10.244.0.2    autogarage-control-plane   <none>           <none>
+pod/keycloak-7c9fdd5ffb-68jpt   1/1     Running   3 (68s ago)   2m40s   10.244.0.3    autogarage-control-plane   <none>           <none>
+pod/postgres-primary-0          1/1     Running   0             9s      10.244.0.12   autogarage-control-plane   <none>           <none>
+pod/postgres-replica-0          1/1     Running   0             2m40s   10.244.0.11   autogarage-control-plane   <none>           <none>
+
+NAME                                READY   AGE     CONTAINERS   IMAGES
+statefulset.apps/postgres-primary   1/1     2m40s   postgres     postgres:16.8
+statefulset.apps/postgres-replica   1/1     2m40s   postgres     postgres:16.8
+
+NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE     SELECTOR
+service/backend                     ClusterIP   10.96.72.62     <none>        8000/TCP       2m40s   app=backend
+service/ingress                     NodePort    10.96.26.152    <none>        80:30080/TCP   2m40s   app=ingress
+service/keycloak                    ClusterIP   10.96.178.209   <none>        8080/TCP       2m40s   app=keycloak
+service/postgres-primary            ClusterIP   10.96.23.86     <none>        5432/TCP       2m40s   app=postgres-primary
+service/postgres-primary-headless   ClusterIP   None            <none>        5432/TCP       2m40s   app=postgres-primary
+service/postgres-replica            ClusterIP   10.96.111.185   <none>        5432/TCP       2m40s   app=postgres-replica
+service/postgres-replica-headless   ClusterIP   None            <none>        5432/TCP       2m40s   app=postgres-replica
+
+NAME                                              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE     VOLUMEMODE
+persistentvolumeclaim/pgdata-postgres-primary-0   Bound    pvc-f5cbb5d6-1465-4090-87b7-6757806655e7   1Gi        RWO            standard       <unset>                 2m40s   Filesystem
+persistentvolumeclaim/pgdata-postgres-replica-0   Bound    pvc-fc27dd45-99cd-43d6-99a2-3319b8db39a1   1Gi        RWO            standard       <unset>                 2m40s   Filesystem
+
+NAME                                   CLASS     HOSTS                  ADDRESS   PORTS   AGE
+ingress.networking.k8s.io/autogarage   traefik   auth.lokal,api.lokal             80      2m40s

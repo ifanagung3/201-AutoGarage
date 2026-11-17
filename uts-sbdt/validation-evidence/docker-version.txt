@@ -1,0 +1,28 @@
+Client: Docker Engine - Community
+ Version:           29.10.0
+ API version:       1.57
+ Go version:        go1.27.4
+ Git commit:        fdd4b8e
+ Built:             Mon Nov 16 11:00:43 2026
+ OS/Arch:           linux/arm64
+ Context:           default
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          29.10.0
+  API version:      1.57 (minimum version 1.40)
+  Go version:       go1.27.4
+  Git commit:       06db173
+  Built:            Mon Nov 16 11:01:05 2026
+  OS/Arch:          linux/arm64
+  Experimental:     false
+ containerd:
+  Version:          v2.4.2
+  GitCommit:        b7a25261e029d68978bbf290df0a62fc819b3c51
+ runc:
+  Version:          1.5.3
+  GitCommit:        v1.5.3-0-g46365c62
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+Docker Compose version v5.7.1

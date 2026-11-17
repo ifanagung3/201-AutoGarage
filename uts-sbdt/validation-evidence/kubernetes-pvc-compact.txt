@@ -1,0 +1,3 @@
+NAME                        STATUS   SIZE   MODE
+pgdata-postgres-primary-0   Bound    1Gi    ReadWriteOnce
+pgdata-postgres-replica-0   Bound    1Gi    ReadWriteOnce

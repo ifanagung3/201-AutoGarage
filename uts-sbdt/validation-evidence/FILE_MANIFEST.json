@@ -1,0 +1,172 @@
+[
+  {
+    "path": "api-image-id.txt",
+    "sha256": "2bb4da9787d133a8d8829659792a83747bacd908a8085c706a922975f3581858",
+    "bytes": 74
+  },
+  {
+    "path": "captured-at.txt",
+    "sha256": "39b5a47ae9e426c24e7c537446796b5d62ee936835a23cf6f41d7e0b711c6beb",
+    "bytes": 21
+  },
+  {
+    "path": "compose-browser.json",
+    "sha256": "69295e00d0f249b928cd3e6ef6b997f9f347afd49f41e5de3551a8d418add05f",
+    "bytes": 410
+  },
+  {
+    "path": "compose-checks.txt",
+    "sha256": "051195ba8a26b67c6d6aabaf9ebef4f1715472c7fa873521d37d822d3e255dd2",
+    "bytes": 3330
+  },
+  {
+    "path": "compose-history-table.png",
+    "sha256": "bf79d91f80fdb3b2cac1f45515fd3db7fb2a088f2c41c6cdae3c5cba832601c6",
+    "bytes": 33325
+  },
+  {
+    "path": "compose-inference-history.png",
+    "sha256": "2da96360a51b29e8cf22dfb513cb05aab8cb5dd9f25064b4b0c18f27dd1e76b5",
+    "bytes": 123890
+  },
+  {
+    "path": "compose-inference-result.png",
+    "sha256": "1a775f2834dd2560297f275979cabd9261fcc6d34bb65514cee2a028376744b0",
+    "bytes": 21106
+  },
+  {
+    "path": "compose-resources.txt",
+    "sha256": "79dd5449f635284ad283d53fb953ef3baba5a9d0342b479054ac1f6108167139",
+    "bytes": 1053
+  },
+  {
+    "path": "compose-results.json",
+    "sha256": "750ddb3cb29e0f55e14ede2e42d6775a869e6c67f625b06c688567215bc6d305",
+    "bytes": 4147
+  },
+  {
+    "path": "compose-sso-form.png",
+    "sha256": "cf24bfd4692e2d52befab4e686561b4ca8e8272a22d9e93e01a08ca01e75ec4b",
+    "bytes": 4574
+  },
+  {
+    "path": "compose-sso-login.png",
+    "sha256": "9b5ead1933b652791320ebcea558966b10c6c291df1804ba4b2d8b6d5b77956e",
+    "bytes": 74606
+  },
+  {
+    "path": "compose-sso-success.png",
+    "sha256": "1cf9cac15f8d98ddb60ffbcf660a59d54bb6aaf230802e2c068db941c44608be",
+    "bytes": 115305
+  },
+  {
+    "path": "docker-version.txt",
+    "sha256": "2ae020f3f57ae9c336245f714ccd21231da52d43c87b3264f44f1e469bf3b921",
+    "bytes": 801
+  },
+  {
+    "path": "kubernetes-browser.json",
+    "sha256": "37c841d168c5a4c731081470b40e4cf3458412f6f9230f98256a5e1f04ee0be9",
+    "bytes": 413
+  },
+  {
+    "path": "kubernetes-checks.txt",
+    "sha256": "80208d2e23f93ca65dba3d223b0db92fdff04b27299ed0c8825bc2f523b8dffe",
+    "bytes": 5654
+  },
+  {
+    "path": "kubernetes-history-table.png",
+    "sha256": "7690648146007087ac0ebf63e84f934facbf35bf5bf295c1e8574811009a9a87",
+    "bytes": 25340
+  },
+  {
+    "path": "kubernetes-inference-history.png",
+    "sha256": "e4f62ee3935d6754d7882946ec9c88dce6b3cc29b645ad3dee16e9fe15e5ae11",
+    "bytes": 115312
+  },
+  {
+    "path": "kubernetes-inference-result.png",
+    "sha256": "4e57860aae5a3643d975b33e1aa6e580ccb80684580e71b0caa941a12f014a1e",
+    "bytes": 21126
+  },
+  {
+    "path": "kubernetes-objects.txt",
+    "sha256": "5bfb8cbadbb67e6edc159567cbb6a21a6a7dfbd5d8d7b69b613767cbb0e98b72",
+    "bytes": 1130
+  },
+  {
+    "path": "kubernetes-pods-compact.txt",
+    "sha256": "7c03bdacde1f31e7e5839e454be1a8c62ca33ecc338c19399ad24e6276f48621",
+    "bytes": 235
+  },
+  {
+    "path": "kubernetes-pvc-compact.txt",
+    "sha256": "685949fae07a8a64cf589080a6e5c811c3c5ece8899f6ca1e165210fbdf5a0ff",
+    "bytes": 165
+  },
+  {
+    "path": "kubernetes-resources.txt",
+    "sha256": "a117855616f59b732aafd86078d166b75e77cec547c2d2919a284e5ced88f2f6",
+    "bytes": 2751
+  },
+  {
+    "path": "kubernetes-results.json",
+    "sha256": "296d3e69083976e989039e457df549f8fce8555e0cdda20f25280a5662047b73",
+    "bytes": 5062
+  },
+  {
+    "path": "kubernetes-sso-form.png",
+    "sha256": "cf24bfd4692e2d52befab4e686561b4ca8e8272a22d9e93e01a08ca01e75ec4b",
+    "bytes": 4574
+  },
+  {
+    "path": "kubernetes-sso-login.png",
+    "sha256": "9b5ead1933b652791320ebcea558966b10c6c291df1804ba4b2d8b6d5b77956e",
+    "bytes": 74606
+  },
+  {
+    "path": "kubernetes-sso-success.png",
+    "sha256": "c22be8b8acaa4a922a2b3b06249c0a41594dc75f13f84da767406d0347b0b328",
+    "bytes": 107548
+  },
+  {
+    "path": "kubernetes-version.json",
+    "sha256": "3f16bf9961860a8f12d09d74898d5dd2d2cd8846287afa9ec27b8566722a1dbb",
+    "bytes": 643
+  },
+  {
+    "path": "lab-os-release.txt",
+    "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+    "bytes": 400
+  },
+  {
+    "path": "lab-uname.txt",
+    "sha256": "1b51c5e392549faf23175238f1e2d6e6404edb4e453a78476e244c53e28ac11c",
+    "bytes": 135
+  },
+  {
+    "path": "local-unit-environment.json",
+    "sha256": "56785e8782ce4421cb9d254cccdd76c8849e27c1c3d4d07bf71a8b9dfd48902c",
+    "bytes": 255
+  },
+  {
+    "path": "local-unit-tests.txt",
+    "sha256": "3ece9017d291949c69350a6041e81a1c83cbb4b0390d27b666a809e326cce961",
+    "bytes": 3458
+  },
+  {
+    "path": "local-unit-tests.xml",
+    "sha256": "0523d49508539f567f458698bfbdbd226e631303296b2eedc84657298c8587ea",
+    "bytes": 2884
+  },
+  {
+    "path": "model-manifest.json",
+    "sha256": "18a187682ed5ba8f0b5bb0ca81f26a057577da1547c65cbfc7ac004f107d6d3c",
+    "bytes": 646
+  },
+  {
+    "path": "source-sha.txt",
+    "sha256": "4d5d36667c07ae3c2f37a6f490aaccfb6528f73d52ebddb37a5daa2047bd6bd9",
+    "bytes": 41
+  }
+]

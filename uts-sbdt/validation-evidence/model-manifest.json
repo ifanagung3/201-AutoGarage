@@ -1,0 +1,26 @@
+{
+  "model_version": "autogarage-rf-v1-7bfb605fb173",
+  "dataset_sha256": "7bfb605fb173b516f03526e423aac7024c7a97d950fb9bc20a4c0f7a1825b40e",
+  "rows": 10,
+  "train_rows": 8,
+  "holdout_rows": 2,
+  "features": [
+    "car_brand",
+    "car_model",
+    "car_year",
+    "service_type",
+    "mileage",
+    "component_count"
+  ],
+  "seed": 42,
+  "source_commit": "60dd5336a2ad90443bad4a5f471de5ffb498da1d",
+  "limitation": "10 example rows; holdout metrics do not establish real-world accuracy",
+  "metrics": {
+    "estimated_cost": {
+      "holdout_mae": 2082250.0
+    },
+    "estimated_duration": {
+      "holdout_mae": 3.3469999999999995
+    }
+  }
+}

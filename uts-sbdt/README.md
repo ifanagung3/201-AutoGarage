@@ -118,3 +118,13 @@ tidak memakai rumus fallback ketika artefak hilang; prediksi ditolak dengan 503.
 
 Penghentian lab: `docker compose down` atau `kind delete cluster --name autogarage`.
 `docker compose down -v` menghapus data lab; gunakan hanya bila memang ingin reset.
+
+## Hasil pelaksanaan
+
+Validasi lokal 17 November 2026: 18 unit test, 9 kelompok integrasi Compose,
+11 kelompok integrasi Kubernetes, dan 2 alur browser lulus. Lihat
+[rekaman hasil dan bukti asli](VALIDATION.md).
+
+Pertahankan `.env` selama volume lab dipakai agar kredensial tetap sesuai.
+Jika ingin reset penuh, hentikan layanan dan hapus volume lab secara sengaja
+sebelum membuat kredensial baru.

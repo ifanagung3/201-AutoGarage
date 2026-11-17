@@ -1,0 +1,11 @@
+{
+  "environment": "compose",
+  "time": "2026-11-17T09:08:08.814491+00:00",
+  "flow": "Keycloak authorization code + PKCE S256; public web client",
+  "name": "Ifan Agung Arisadi",
+  "cost": "Rp 1.165.000",
+  "duration": "3.4 jam",
+  "saved": "Tersimpan di primary · ID inferensi #5",
+  "read_source": "Sumber pembacaan: replica · 5 hasil tersimpan",
+  "model": "Versi model: autogarage-rf-v1-7bfb605fb173"
+}
