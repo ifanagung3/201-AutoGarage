@@ -6,7 +6,7 @@ sudo apt-get update
 sudo apt-get install -y python3-venv curl
 python3 -m venv "$HOME/autogarage-venv"
 export PATH="$HOME/autogarage-venv/bin:$HOME/.local/bin:$PATH"
-python -m pip install requests==2.32.3 playwright==1.51.1
+python -m pip install requests==2.32.3 playwright==1.51.0
 python -m playwright install --with-deps chromium
 printf '127.0.0.1 auth.lokal api.lokal\n' | sudo tee -a /etc/hosts
 python scripts/bootstrap.py
